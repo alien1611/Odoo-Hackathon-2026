@@ -42,4 +42,5 @@ export interface UpdateAssetInput {
   location?: string;
   condition?: string;
   image?: string;
+  status?: AssetStatus;
 }

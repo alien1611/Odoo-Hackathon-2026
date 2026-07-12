@@ -11,6 +11,10 @@ import dashboardRoutes from "./modules/dashboard/routes";
 import notificationRoutes from "./modules/notifications/routes";
 import activityLogRoutes from "./modules/activityLogs/routes";
 import { assetRoutes } from "./modules/assets/routes";
+import { bookingRoutes } from "./modules/bookings/routes";
+import { maintenanceRoutes } from "./modules/maintenance/routes";
+import { auditRoutes } from "./modules/audit/routes";
+import { reportsRoutes } from "./modules/reports/routes";
 
 import { errorHandler } from "./middleware/error.middleware";
 
@@ -37,6 +41,10 @@ app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/notifications", notificationRoutes);
 app.use("/api/v1/activity-logs", activityLogRoutes);
 app.use("/api/v1/assets", assetRoutes);
+app.use("/api/v1/bookings", bookingRoutes);
+app.use("/api/v1/maintenance", maintenanceRoutes);
+app.use("/api/v1/audits", auditRoutes);
+app.use("/api/v1/reports", reportsRoutes);
 
 // Global Error Handler (Must be the last middleware)
 app.use(errorHandler);

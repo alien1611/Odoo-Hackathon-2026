@@ -68,6 +68,13 @@ model User {
   approvals       TransferRequest[] @relation("ManagerApprovals")
   historyLogs     AssetHistory[]
 
+  // Relationships from Module 3
+  bookings        Booking[]         @relation("UserBookings")
+  reportedMaint   MaintenanceRequest[] @relation("ReporterMaintenance")
+  assignedMaint   MaintenanceRequest[] @relation("TechnicianMaintenance")
+  createdAudits   AuditCycle[]      @relation("CreatorAuditCycles")
+  verifiedAudits  AuditRecord[]     @relation("VerifierAuditRecords")
+
   @@index([email])
 }
 
@@ -122,6 +129,8 @@ model Asset {
   allocations     AssetAllocation[]
   transfers       TransferRequest[]
   history         AssetHistory[]
+  maintenanceRequests MaintenanceRequest[]
+  auditRecords    AuditRecord[]
 
   @@index([status])
   @@index([departmentId])
@@ -207,4 +216,125 @@ model ActivityLog {
   module      String
   description String
   createdAt   DateTime @default(now())
+}
+
+// ----------------------------------------------------
+// MODULE 3 ENUMS
+// ----------------------------------------------------
+enum BookingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+  COMPLETED
+}
+
+enum MaintenanceStatus {
+  PENDING
+  APPROVED
+  ASSIGNED
+  IN_PROGRESS
+  RESOLVED
+  REJECTED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AuditStatus {
+  OPEN
+  ACTIVE
+  COMPLETED
+  CLOSED
+}
+
+enum VerificationStatus {
+  VERIFIED
+  DAMAGED
+  MISSING
+}
+
+// ----------------------------------------------------
+// MODULE 3 MODELS
+// ----------------------------------------------------
+model Booking {
+  id           String        @id @default(uuid()) @db.Uuid
+  resourceId   String        @db.Uuid
+  resourceType String        @db.VarChar(100)
+  bookedBy     String        @db.Uuid
+  startTime    DateTime      @db.Timestamptz
+  endTime      DateTime      @db.Timestamptz
+  purpose      String        @db.Text
+  status       BookingStatus @default(PENDING)
+  createdAt    DateTime      @default(now()) @db.Timestamptz
+
+  user         User          @relation("UserBookings", fields: [bookedBy], references: [id], onDelete: Restrict)
+
+  @@index([resourceId])
+  @@index([startTime, endTime])
+}
+
+model MaintenanceRequest {
+  id             String            @id @default(uuid()) @db.Uuid
+  assetId        String            @db.Uuid
+  reportedBy     String            @db.Uuid
+  assignedTo     String?           @db.Uuid
+  issueTitle     String            @db.VarChar(255)
+  description    String            @db.Text
+  priority       Priority          @default(MEDIUM)
+  status         MaintenanceStatus @default(PENDING)
+  approvalStatus String            @default("PENDING")
+
+  createdAt      DateTime          @default(now()) @db.Timestamptz
+  updatedAt      DateTime          @updatedAt @db.Timestamptz
+
+  asset          Asset             @relation(fields: [assetId], references: [id], onDelete: Restrict)
+  reporter       User              @relation("ReporterMaintenance", fields: [reportedBy], references: [id], onDelete: Restrict)
+  technician     User?             @relation("TechnicianMaintenance", fields: [assignedTo], references: [id], onDelete: SetNull)
+
+  @@index([assetId])
+  @@index([status])
+}
+
+model AuditCycle {
+  id        String        @id @default(uuid()) @db.Uuid
+  name      String        @db.VarChar(255)
+  scope     String        @db.Text
+  startDate DateTime      @db.Timestamptz
+  endDate   DateTime      @db.Timestamptz
+  status    AuditStatus   @default(OPEN)
+  createdBy String        @db.Uuid
+
+  creator   User          @relation("CreatorAuditCycles", fields: [createdBy], references: [id], onDelete: Restrict)
+  records   AuditRecord[]
+
+  @@index([status])
+}
+
+model AuditRecord {
+  id                 String             @id @default(uuid()) @db.Uuid
+  auditCycleId       String             @db.Uuid
+  assetId            String             @db.Uuid
+  verifiedBy         String             @db.Uuid
+  verificationStatus VerificationStatus @default(VERIFIED)
+  remarks            String?            @db.Text
+  verifiedAt         DateTime           @default(now()) @db.Timestamptz
+
+  cycle              AuditCycle         @relation(fields: [auditCycleId], references: [id], onDelete: Cascade)
+  asset              Asset              @relation(fields: [assetId], references: [id], onDelete: Restrict)
+  verifier           User               @relation("VerifierAuditRecords", fields: [verifiedBy], references: [id], onDelete: Restrict)
+
+  @@index([auditCycleId])
+  @@index([assetId])
+}
+
+model ReportCache {
+  id          String   @id @default(uuid()) @db.Uuid
+  reportType  String   @db.VarChar(100)
+  generatedAt DateTime @default(now()) @db.Timestamptz
+  data        Json
 }

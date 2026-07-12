@@ -15,7 +15,12 @@ import {
   Menu, 
   X,
   Shield,
-  Activity
+  Activity,
+  Calendar,
+  Wrench,
+  ClipboardCheck,
+  BarChart3,
+  Package
 } from "lucide-react";
 import { api } from "@/lib/axios";
 
@@ -84,6 +89,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const menuItems = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Assets", href: "/assets", icon: Package },
+    { name: "Bookings", href: "/bookings", icon: Calendar },
+    { name: "Maintenance", href: "/maintenance", icon: Wrench },
+    { name: "Audits", href: "/audits", icon: ClipboardCheck },
+    { name: "Reports & Analytics", href: "/reports", icon: BarChart3 },
     { name: "Departments", href: "/departments", icon: Building2 },
     { name: "Categories", href: "/categories", icon: Tag },
     { name: "Employees", href: "/employees", icon: Users },
