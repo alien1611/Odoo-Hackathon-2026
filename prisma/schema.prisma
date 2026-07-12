@@ -1,9 +1,162 @@
+<<<<<<< HEAD
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+=======
 // prisma/schema.prisma
+>>>>>>> a3d5eb337fc7bb426764aba53665a213338ca91f
 
 generator client {
   provider = "prisma-client-js"
 }
 
+<<<<<<< HEAD
+// ----------------------------------------------------
+// ENUMS (MODULE 2: ASSETS)
+// ----------------------------------------------------
+enum AssetStatus {
+  AVAILABLE
+  ALLOCATED
+  RESERVED
+  UNDER_MAINTENANCE
+  LOST
+  DISPOSED
+  RETIRED
+}
+
+enum AllocationStatus {
+  ACTIVE
+  RETURNED
+  OVERDUE
+}
+
+enum TransferStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// ----------------------------------------------------
+// DEPENDENCY MOCK MODELS (Owned by Member 1)
+// ----------------------------------------------------
+model User {
+  id              String            @id @default(uuid()) @db.Uuid
+  email           String            @unique
+  allocations     AssetAllocation[] @relation("EmployeeAllocations")
+  allocationsMade AssetAllocation[] @relation("ManagerAllocations")
+  transfers       TransferRequest[] @relation("EmployeeTransfers")
+  approvals       TransferRequest[] @relation("ManagerApprovals")
+  historyLogs     AssetHistory[]
+}
+
+model Department {
+  id              String            @id @default(uuid()) @db.Uuid
+  name            String
+  assets          Asset[]
+}
+
+model Category {
+  id              String            @id @default(uuid()) @db.Uuid
+  name            String
+  assets          Asset[]
+}
+
+// ----------------------------------------------------
+// YOUR MODELS (MODULE 2: ASSETS)
+// ----------------------------------------------------
+model Asset {
+  id              String          @id @default(uuid()) @db.Uuid
+  assetTag        String          @unique @db.VarChar(100)
+  serialNumber    String          @unique @db.VarChar(255)
+  name            String          @db.VarChar(255)
+  description     String?         @db.Text
+  categoryId      String          @db.Uuid
+  departmentId    String          @db.Uuid
+  purchaseDate    DateTime        @db.Date
+  purchaseCost    Decimal         @db.Decimal(15, 2)
+  vendor          String          @db.VarChar(150)
+  warrantyExpiry  DateTime?       @db.Date
+  location        String          @db.VarChar(255)
+  condition       String          @db.VarChar(50) 
+  status          AssetStatus     @default(AVAILABLE)
+  qrCode          String?         @db.Text
+  image           String?         @db.Text
+  
+  deletedAt       DateTime?       @db.Timestamptz
+  createdAt       DateTime        @default(now()) @db.Timestamptz
+  updatedAt       DateTime        @updatedAt @db.Timestamptz
+
+  category        Category          @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  department      Department        @relation(fields: [departmentId], references: [id], onDelete: Restrict)
+  allocations     AssetAllocation[]
+  transfers       TransferRequest[]
+  history         AssetHistory[]
+
+  @@index([status])
+  @@index([departmentId])
+  @@index([categoryId])
+  @@index([deletedAt])
+}
+
+model AssetAllocation {
+  id                 String           @id @default(uuid()) @db.Uuid
+  assetId            String           @db.Uuid
+  employeeId         String           @db.Uuid
+  allocatedBy        String           @db.Uuid
+  allocatedDate      DateTime         @default(now()) @db.Timestamptz
+  expectedReturnDate DateTime         @db.Timestamptz
+  actualReturnDate   DateTime?        @db.Timestamptz
+  status             AllocationStatus @default(ACTIVE)
+  remarks            String?          @db.Text
+  
+  createdAt          DateTime         @default(now()) @db.Timestamptz
+  updatedAt          DateTime         @updatedAt @db.Timestamptz
+
+  asset              Asset            @relation(fields: [assetId], references: [id], onDelete: Restrict)
+  employee           User             @relation("EmployeeAllocations", fields: [employeeId], references: [id], onDelete: Restrict)
+  manager            User             @relation("ManagerAllocations", fields: [allocatedBy], references: [id], onDelete: Restrict)
+
+  @@index([assetId])
+  @@index([employeeId])
+  @@index([status])
+}
+
+model TransferRequest {
+  id             String         @id @default(uuid()) @db.Uuid
+  assetId        String         @db.Uuid
+  requestedBy    String         @db.Uuid
+  fromDepartment String         @db.Uuid
+  toDepartment   String         @db.Uuid
+  approvedBy     String?        @db.Uuid
+  status         TransferStatus @default(PENDING)
+  reason         String         @db.Text
+  
+  createdAt      DateTime       @default(now()) @db.Timestamptz
+  updatedAt      DateTime       @updatedAt @db.Timestamptz
+
+  asset          Asset          @relation(fields: [assetId], references: [id], onDelete: Restrict)
+  requester      User           @relation("EmployeeTransfers", fields: [requestedBy], references: [id], onDelete: Restrict)
+  approver       User?          @relation("ManagerApprovals", fields: [approvedBy], references: [id], onDelete: SetNull)
+
+  @@index([assetId])
+  @@index([status])
+}
+
+model AssetHistory {
+  id          String   @id @default(uuid()) @db.Uuid
+  assetId     String   @db.Uuid
+  action      String   @db.VarChar(100) 
+  performedBy String   @db.Uuid
+  description String   @db.Text
+  timestamp   DateTime @default(now()) @db.Timestamptz
+
+  asset       Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [performedBy], references: [id], onDelete: Restrict)
+
+  @@index([assetId])
+  @@index([timestamp])
+=======
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -79,4 +232,5 @@ model ActivityLog {
   module      String
   description String
   createdAt   DateTime @default(now())
+>>>>>>> a3d5eb337fc7bb426764aba53665a213338ca91f
 }
