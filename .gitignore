@@ -2,4 +2,8 @@ node_modules
 # Keep environment variables out of version control
 .env
 
+<<<<<<< HEAD
 /src/generated/prisma
+=======
+/generated/prisma
+>>>>>>> a3d5eb337fc7bb426764aba53665a213338ca91f

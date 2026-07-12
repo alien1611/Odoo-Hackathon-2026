@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
     // File Layout
@@ -42,3 +43,41 @@
     "skipLibCheck": true,
   }
 }
+=======
+  "compilerOptions": {
+    /* Language and Environment */
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    
+    /* Modules */
+    "module": "CommonJS",
+    "rootDir": "./server/src",
+    "moduleResolution": "node",
+    "ignoreDeprecations": "6.0",
+    "resolveJsonModule": true,
+    
+    /* Emit */
+    "outDir": "./dist",
+    "sourceMap": true,
+    
+    /* Interop Constraints */
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    
+    /* Type Checking - The most important part for an ERP */
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    
+    /* Completeness */
+    "skipLibCheck": true
+  },
+  "include": ["server/src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+}
+>>>>>>> a3d5eb337fc7bb426764aba53665a213338ca91f

@@ -1,12 +1,17 @@
+<<<<<<< HEAD
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+=======
+// prisma/schema.prisma
+>>>>>>> a3d5eb337fc7bb426764aba53665a213338ca91f
 
 generator client {
   provider = "prisma-client-js"
 }
 
+<<<<<<< HEAD
 // ----------------------------------------------------
 // ENUMS (MODULE 2: ASSETS)
 // ----------------------------------------------------
@@ -151,4 +156,81 @@ model AssetHistory {
 
   @@index([assetId])
   @@index([timestamp])
+=======
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  EMPLOYEE
+  ASSET_MANAGER
+  DEPARTMENT_HEAD
+}
+
+model User {
+  id           String      @id @default(uuid())
+  name         String
+  email        String      @unique
+  password     String
+  phone        String?
+  designation  String?
+  role         Role        @default(EMPLOYEE)
+  departmentId String?     
+  status       String      @default("ACTIVE") 
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  // Relationships
+  department   Department? @relation("DepartmentEmployees", fields: [departmentId], references: [id])
+  headedDept   Department? @relation("DepartmentHead")
+  notifications Notification[]
+  activityLogs  ActivityLog[]
+  
+  @@index([email])
+}
+
+model Department {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  headId      String?  @unique
+  head        User?    @relation("DepartmentHead", fields: [headId], references: [id])
+  status      String   @default("ACTIVE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  employees   User[]   @relation("DepartmentEmployees")
+}
+
+model AssetCategory {
+  id           String   @id @default(uuid())
+  name         String   @unique
+  description  String?
+  customFields Json?    
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  type      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model ActivityLog {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  action      String
+  module      String
+  description String
+  createdAt   DateTime @default(now())
+>>>>>>> a3d5eb337fc7bb426764aba53665a213338ca91f
 }
