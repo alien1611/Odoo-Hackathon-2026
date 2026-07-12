@@ -21,4 +21,26 @@ export class AuthRepository {
   async createUser(data: SignupInput & { password: string }): Promise<User> {
     return prisma.user.create({ data });
   }
+
+  async findAll(skip: number, take: number) {
+    return prisma.user.findMany({
+      skip,
+      take,
+      select: { id: true, name: true, email: true, role: true, designation: true, departmentId: true, status: true, createdAt: true }
+    });
+  }
+
+  async update(id: string, data: any) {
+    return prisma.user.update({
+      where: { id },
+      data,
+      select: { id: true, name: true, email: true, role: true, designation: true, departmentId: true, status: true }
+    });
+  }
+
+  async delete(id: string) {
+    return prisma.user.delete({
+      where: { id }
+    });
+  }
 }

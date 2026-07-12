@@ -1,20 +1,22 @@
-<<<<<<< HEAD
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-=======
-// prisma/schema.prisma
->>>>>>> a3d5eb337fc7bb426764aba53665a213338ca91f
 
 generator client {
   provider = "prisma-client-js"
 }
 
-<<<<<<< HEAD
 // ----------------------------------------------------
-// ENUMS (MODULE 2: ASSETS)
+// ENUMS
 // ----------------------------------------------------
+enum Role {
+  ADMIN
+  EMPLOYEE
+  ASSET_MANAGER
+  DEPARTMENT_HEAD
+}
+
 enum AssetStatus {
   AVAILABLE
   ALLOCATED
@@ -38,33 +40,61 @@ enum TransferStatus {
 }
 
 // ----------------------------------------------------
-// DEPENDENCY MOCK MODELS (Owned by Member 1)
+// MODELS
 // ----------------------------------------------------
 model User {
   id              String            @id @default(uuid()) @db.Uuid
+  name            String
   email           String            @unique
+  password        String
+  phone           String?
+  designation     String?
+  role            Role              @default(EMPLOYEE)
+  departmentId    String?           @db.Uuid
+  status          String            @default("ACTIVE")
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // Relationships from Module 1
+  department      Department?       @relation("DepartmentEmployees", fields: [departmentId], references: [id])
+  headedDept      Department?       @relation("DepartmentHead")
+  notifications   Notification[]
+  activityLogs    ActivityLog[]
+
+  // Relationships from Module 2 (Assets)
   allocations     AssetAllocation[] @relation("EmployeeAllocations")
   allocationsMade AssetAllocation[] @relation("ManagerAllocations")
   transfers       TransferRequest[] @relation("EmployeeTransfers")
   approvals       TransferRequest[] @relation("ManagerApprovals")
   historyLogs     AssetHistory[]
+
+  @@index([email])
 }
 
 model Department {
-  id              String            @id @default(uuid()) @db.Uuid
-  name            String
-  assets          Asset[]
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique
+  description String?
+  headId      String?  @unique @db.Uuid
+  head        User?    @relation("DepartmentHead", fields: [headId], references: [id])
+  status      String   @default("ACTIVE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  employees   User[]   @relation("DepartmentEmployees")
+  assets      Asset[]
 }
 
 model Category {
-  id              String            @id @default(uuid()) @db.Uuid
-  name            String
-  assets          Asset[]
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String   @unique
+  description  String?
+  customFields Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  assets       Asset[]
 }
 
-// ----------------------------------------------------
-// YOUR MODELS (MODULE 2: ASSETS)
-// ----------------------------------------------------
 model Asset {
   id              String          @id @default(uuid()) @db.Uuid
   assetTag        String          @unique @db.VarChar(100)
@@ -78,11 +108,11 @@ model Asset {
   vendor          String          @db.VarChar(150)
   warrantyExpiry  DateTime?       @db.Date
   location        String          @db.VarChar(255)
-  condition       String          @db.VarChar(50) 
+  condition       String          @db.VarChar(50)
   status          AssetStatus     @default(AVAILABLE)
   qrCode          String?         @db.Text
   image           String?         @db.Text
-  
+
   deletedAt       DateTime?       @db.Timestamptz
   createdAt       DateTime        @default(now()) @db.Timestamptz
   updatedAt       DateTime        @updatedAt @db.Timestamptz
@@ -109,7 +139,7 @@ model AssetAllocation {
   actualReturnDate   DateTime?        @db.Timestamptz
   status             AllocationStatus @default(ACTIVE)
   remarks            String?          @db.Text
-  
+
   createdAt          DateTime         @default(now()) @db.Timestamptz
   updatedAt          DateTime         @updatedAt @db.Timestamptz
 
@@ -131,7 +161,7 @@ model TransferRequest {
   approvedBy     String?        @db.Uuid
   status         TransferStatus @default(PENDING)
   reason         String         @db.Text
-  
+
   createdAt      DateTime       @default(now()) @db.Timestamptz
   updatedAt      DateTime       @updatedAt @db.Timestamptz
 
@@ -146,7 +176,7 @@ model TransferRequest {
 model AssetHistory {
   id          String   @id @default(uuid()) @db.Uuid
   assetId     String   @db.Uuid
-  action      String   @db.VarChar(100) 
+  action      String   @db.VarChar(100)
   performedBy String   @db.Uuid
   description String   @db.Text
   timestamp   DateTime @default(now()) @db.Timestamptz
@@ -156,66 +186,11 @@ model AssetHistory {
 
   @@index([assetId])
   @@index([timestamp])
-=======
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-enum Role {
-  ADMIN
-  EMPLOYEE
-  ASSET_MANAGER
-  DEPARTMENT_HEAD
-}
-
-model User {
-  id           String      @id @default(uuid())
-  name         String
-  email        String      @unique
-  password     String
-  phone        String?
-  designation  String?
-  role         Role        @default(EMPLOYEE)
-  departmentId String?     
-  status       String      @default("ACTIVE") 
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-
-  // Relationships
-  department   Department? @relation("DepartmentEmployees", fields: [departmentId], references: [id])
-  headedDept   Department? @relation("DepartmentHead")
-  notifications Notification[]
-  activityLogs  ActivityLog[]
-  
-  @@index([email])
-}
-
-model Department {
-  id          String   @id @default(uuid())
-  name        String   @unique
-  description String?
-  headId      String?  @unique
-  head        User?    @relation("DepartmentHead", fields: [headId], references: [id])
-  status      String   @default("ACTIVE")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  employees   User[]   @relation("DepartmentEmployees")
-}
-
-model AssetCategory {
-  id           String   @id @default(uuid())
-  name         String   @unique
-  description  String?
-  customFields Json?    
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
 }
 
 model Notification {
-  id        String   @id @default(uuid())
-  userId    String
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
   user      User     @relation(fields: [userId], references: [id])
   title     String
   message   String
@@ -225,12 +200,11 @@ model Notification {
 }
 
 model ActivityLog {
-  id          String   @id @default(uuid())
-  userId      String
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @db.Uuid
   user        User     @relation(fields: [userId], references: [id])
   action      String
   module      String
   description String
   createdAt   DateTime @default(now())
->>>>>>> a3d5eb337fc7bb426764aba53665a213338ca91f
 }

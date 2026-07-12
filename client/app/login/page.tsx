@@ -35,8 +35,9 @@ export default function LoginPage() {
         localStorage.setItem('user', JSON.stringify(response.data.data.user));
         router.push('/dashboard');
       }
-    } catch (err: any) {
-      setError(err.response?.data?.message || "An unexpected error occurred");
+    } catch (err) {
+      const errorResponse = err as { response?: { data?: { message?: string } } };
+      setError(errorResponse.response?.data?.message || "An unexpected error occurred");
     } finally {
       setIsLoading(false);
     }
@@ -89,7 +90,7 @@ export default function LoginPage() {
         </form>
 
         <div className="mt-6 text-center text-sm text-slate-500">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link href="/signup" className="text-slate-900 font-medium hover:underline">
             Request Access
           </Link>

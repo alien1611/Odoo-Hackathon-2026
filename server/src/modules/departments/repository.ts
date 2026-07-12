@@ -21,4 +21,8 @@ export class DepartmentRepository {
   async update(id: string, data: Partial<DepartmentInput>) {
     return prisma.department.update({ where: { id }, data });
   }
+
+  async delete(id: string) {
+    return prisma.department.delete({ where: { id } });
+  }
 }

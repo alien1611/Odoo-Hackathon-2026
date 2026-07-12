@@ -27,4 +27,35 @@ export class NotificationRepository {
       where: { id, userId },
     });
   }
+
+  async findAll(skip: number, take: number) {
+    const [notifications, total] = await Promise.all([
+      prisma.notification.findMany({
+        skip,
+        take,
+        orderBy: { createdAt: "desc" }
+      }),
+      prisma.notification.count()
+    ]);
+    return { notifications, total };
+  }
+
+  async findById(id: string) {
+    return prisma.notification.findUnique({
+      where: { id }
+    });
+  }
+
+  async update(id: string, data: any) {
+    return prisma.notification.update({
+      where: { id },
+      data
+    });
+  }
+
+  async deleteSingle(id: string) {
+    return prisma.notification.delete({
+      where: { id }
+    });
+  }
 }

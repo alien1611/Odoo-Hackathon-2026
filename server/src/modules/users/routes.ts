@@ -9,7 +9,12 @@ const controller = new UserController();
 router.use(authenticate);
 
 router.get("/directory", controller.getDirectory);
-// Business Rule: Admin Promotes Employee
 router.patch("/promote/:id", requireRole(["ADMIN"]), controller.promoteUser);
+
+router.get("/", controller.getAll);
+router.get("/:id", controller.getById);
+router.post("/", controller.create);
+router.patch("/:id", controller.update);
+router.delete("/:id", controller.delete);
 
 export default router;

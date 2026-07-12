@@ -22,4 +22,24 @@ export class ActivityLogRepository {
 
     return { logs, total };
   }
+
+  async findById(id: string) {
+    return prisma.activityLog.findUnique({
+      where: { id },
+      include: { user: { select: { name: true, email: true } } },
+    });
+  }
+
+  async update(id: string, data: any) {
+    return prisma.activityLog.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async delete(id: string) {
+    return prisma.activityLog.delete({
+      where: { id },
+    });
+  }
 }

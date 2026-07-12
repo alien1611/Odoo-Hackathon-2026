@@ -9,8 +9,10 @@ const controller = new CategoryController();
 router.use(authenticate);
 
 router.get("/", controller.getAll);
-// Business Rule: Only Admin creates Categories (Asset Managers will use them)
+router.get("/:id", controller.getById);
+// Business Rule: Only Admin creates/modifies Categories (Asset Managers will use them)
 router.post("/", requireRole(["ADMIN"]), controller.create);
 router.patch("/:id", requireRole(["ADMIN"]), controller.update);
+router.delete("/:id", requireRole(["ADMIN"]), controller.delete);
 
 export default router;

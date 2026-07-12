@@ -22,4 +22,27 @@ export class NotificationService {
     }
     return { success: true };
   }
+
+  async getAll(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    return this.repo.findAll(skip, limit);
+  }
+
+  async getById(id: string) {
+    const notification = await this.repo.findById(id);
+    if (!notification) throw new Error("Notification not found");
+    return notification;
+  }
+
+  async createNotification(data: any) {
+    return this.repo.create(data);
+  }
+
+  async updateNotification(id: string, data: any) {
+    return this.repo.update(id, data);
+  }
+
+  async deleteSingleNotification(id: string) {
+    return this.repo.deleteSingle(id);
+  }
 }
