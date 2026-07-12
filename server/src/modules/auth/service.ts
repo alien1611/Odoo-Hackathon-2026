@@ -133,6 +133,30 @@ export class AuthService {
     };
   }
 
+  async resetPassword(token: string, newPassword: string) {
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
+      const user = await this.authRepo.findUserById(decoded.id);
+      if (!user) {
+        throw new Error("User not found or invalid token");
+      }
+
+      const hashedPassword = await bcrypt.hash(newPassword, 12);
+      await this.authRepo.update(decoded.id, { password: hashedPassword });
+
+      await this.notificationService.createNotification({
+        userId: decoded.id,
+        title: "Password Updated",
+        message: "Your password has been changed successfully.",
+        type: "SYSTEM",
+      });
+
+      return { success: true, message: "Password updated successfully." };
+    } catch (error) {
+      throw new Error("Invalid or expired reset token");
+    }
+  }
+
   async getAll(page: number, limit: number) {
     const skip = (page - 1) * limit;
     return this.authRepo.findAll(skip, limit);

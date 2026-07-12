@@ -13,6 +13,7 @@ router.get("/profile", authenticate, authController.getProfile);
 router.patch("/profile", authenticate, authController.updateProfile);
 router.post("/refresh-token", authController.refreshToken);
 router.post("/forgot-password", authController.forgotPassword);
+router.post("/reset-password", authController.resetPassword);
 
 // User CRUD routes secured for ADMINs
 router.get("/", authenticate, requireRole(["ADMIN"]), authController.getAll);

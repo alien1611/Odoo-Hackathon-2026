@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { AuthService } from "./service";
-import { signupSchema, loginSchema, updateProfileSchema, refreshTokenSchema, forgotPasswordSchema } from "./validation";
+import { signupSchema, loginSchema, updateProfileSchema, refreshTokenSchema, forgotPasswordSchema, resetPasswordSchema } from "./validation";
 
 export class AuthController {
   private authService = new AuthService();
@@ -107,6 +107,21 @@ export class AuthController {
         data: {
           resetTokenPlaceholder: result.resetTokenPlaceholder,
         },
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  resetPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { token, password } = resetPasswordSchema.parse(req.body);
+      const result = await this.authService.resetPassword(token, password);
+
+      res.status(200).json({
+        success: true,
+        message: result.message,
+        data: {},
       });
     } catch (error) {
       next(error);
