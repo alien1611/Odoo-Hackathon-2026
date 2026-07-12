@@ -90,13 +90,19 @@ a, button, input, select, textarea, [role="button"], label {
 
 /* Frosted Floating Glass Card */
 .wwdc-card {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1.5px solid rgba(255, 255, 255, 0.45);
   border-radius: 28px;
   box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.02), inset 0 1px 0 rgba(255, 255, 255, 0.6);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark .wwdc-card {
+  background: rgba(24, 24, 27, 0.65) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
 }
 
 /* White Glass Inputs */
@@ -113,6 +119,12 @@ a, button, input, select, textarea, [role="button"], label {
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.dark .wwdc-input {
+  background: rgba(24, 24, 27, 0.5) !important;
+  color: #F9FAFB !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
 .wwdc-input-with-icon {
   padding-left: 2.75rem !important;
 }
@@ -121,6 +133,12 @@ a, button, input, select, textarea, [role="button"], label {
   border-color: #2563EB !important;
   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15) !important;
   background: #ffffff !important;
+}
+
+.dark .wwdc-input:focus {
+  background: #18181b !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.25) !important;
 }
 
 /* Apple-style Blue Gradient Button */
