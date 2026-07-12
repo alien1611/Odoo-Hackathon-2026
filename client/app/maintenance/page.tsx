@@ -99,9 +99,9 @@ export default function MaintenancePage() {
 
   const fetchEmployees = async () => {
     try {
-      const response = await api.get("/employees"); // To select technician
+      const response = await api.get("/users?limit=100"); // To select technician
       if (response.data.success) {
-        setEmployees(response.data.data);
+        setEmployees(response.data.data.users);
       }
     } catch (err) {
       console.error("Failed to load employees for assignment", err);
