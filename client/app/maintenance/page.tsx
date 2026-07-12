@@ -6,17 +6,13 @@ import Layout from "@/components/Layout";
 import { api } from "@/lib/axios";
 import { 
   Plus, 
-  Wrench, 
-  AlertTriangle, 
   Check, 
   X,
   UserPlus, 
   Clock, 
   Info, 
-  Search,
   ChevronLeft,
   ChevronRight,
-  Shield,
   Activity,
   AlertCircle
 } from "lucide-react";
@@ -187,24 +183,24 @@ export default function MaintenancePage() {
     setModalError(null);
   };
 
-  const getPriorityBadge = (prio: string) => {
+  const getPriorityPillClass = (prio: string) => {
     switch (prio) {
-      case "CRITICAL": return "bg-red-50 text-red-700 border-red-200";
-      case "HIGH": return "bg-orange-50 text-orange-700 border-orange-200";
-      case "MEDIUM": return "bg-amber-50 text-amber-700 border-amber-200";
-      default: return "bg-slate-50 text-slate-700 border-slate-200";
+      case "CRITICAL": return "status-pill-lost";
+      case "HIGH": return "status-pill-maintenance";
+      case "MEDIUM": return "status-pill-reserved";
+      default: return "bg-slate-100 text-slate-500 border-slate-200/50";
     }
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusPillClass = (status: string) => {
     switch (status) {
-      case "RESOLVED": return "bg-emerald-50 text-emerald-700 border-emerald-200";
-      case "IN_PROGRESS": return "bg-blue-50 text-blue-700 border-blue-200";
-      case "ASSIGNED": return "bg-purple-50 text-purple-700 border-purple-200";
-      case "APPROVED": return "bg-teal-50 text-teal-700 border-teal-200";
-      case "PENDING": return "bg-amber-50 text-amber-700 border-amber-200";
-      case "REJECTED": return "bg-rose-50 text-rose-700 border-rose-200";
-      default: return "bg-slate-50 text-slate-700 border-slate-200";
+      case "RESOLVED": return "status-pill-available";
+      case "IN_PROGRESS": return "status-pill-allocated";
+      case "ASSIGNED": return "status-pill-allocated bg-purple-500/10 text-purple-500 border-purple-500/10";
+      case "APPROVED": return "status-pill-available bg-teal-500/10 text-teal-500 border-teal-500/10";
+      case "PENDING": return "status-pill-reserved";
+      case "REJECTED": return "status-pill-lost";
+      default: return "bg-slate-100 text-slate-700 border-slate-200";
     }
   };
 
@@ -217,16 +213,17 @@ export default function MaintenancePage() {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-8 animate-page-enter">
+        
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Maintenance & Repairs</h1>
-            <p className="text-sm text-slate-500 mt-1">Manage asset faults, technician assignment, and repair status progressions.</p>
+            <h1 className="text-2xl font-extrabold tracking-tight text-foreground">Maintenance Log</h1>
+            <p className="text-xs text-slate-450 dark:text-slate-450 mt-1">Raise fault tickets, deploy technicians, and monitor ongoing repairs.</p>
           </div>
           <button 
             onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-md hover:bg-slate-800 transition-colors text-sm font-semibold shadow-sm"
+            className="apple-btn apple-btn-primary"
           >
             <Plus className="h-4 w-4" />
             Raise Request
@@ -234,30 +231,30 @@ export default function MaintenancePage() {
         </div>
 
         {/* KPI Cards Grid */}
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-          <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Pending Approvals</p>
-            <h3 className="text-2xl font-bold text-slate-900 mt-2">{pendingCount} Requests</h3>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+          <div className="premium-card p-6 bg-gradient-to-tr from-white/90 to-[#8B5CF6]/5 dark:from-[#15181D] dark:to-[#8B5CF6]/10">
+            <p className="text-[10px] font-extrabold text-[#8B5CF6] uppercase tracking-widest">Pending Verification</p>
+            <h3 className="text-3xl font-extrabold tracking-tight mt-3 text-foreground">{pendingCount} Requests</h3>
           </div>
-          <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Repairs</p>
-            <h3 className="text-2xl font-bold text-slate-900 mt-2">{progressCount} In Progress</h3>
+          <div className="premium-card p-6 bg-gradient-to-tr from-white/90 to-[#007AFF]/5 dark:from-[#15181D] dark:to-[#007AFF]/10">
+            <p className="text-[10px] font-extrabold text-[#007AFF] uppercase tracking-widest">Active Repairs</p>
+            <h3 className="text-3xl font-extrabold tracking-tight mt-3 text-foreground">{progressCount} Active</h3>
           </div>
-          <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Critical Failures</p>
-            <h3 className="text-2xl font-bold text-red-600 mt-2">{criticalCount} Active</h3>
+          <div className="premium-card p-6 bg-gradient-to-tr from-white/90 to-red-500/5 dark:from-[#15181D] dark:to-red-500/10">
+            <p className="text-[10px] font-extrabold text-red-500 uppercase tracking-widest">Urgent / Critical Failures</p>
+            <h3 className="text-3xl font-extrabold tracking-tight mt-3 text-red-650 dark:text-red-400">{criticalCount} Unresolved</h3>
           </div>
         </div>
 
         {/* Filter Toolbar */}
-        <div className="flex flex-col sm:flex-row gap-4 bg-white p-4 border border-slate-200 rounded-lg shadow-sm">
-          <div className="flex flex-1 gap-3">
+        <div className="glass-panel p-4 bg-white/50 dark:bg-[#15181D]/45 flex flex-col sm:flex-row gap-4 justify-between items-center">
+          <div className="flex gap-3 w-full sm:w-auto">
             <select 
               value={statusFilter}
               onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-              className="px-3 py-2 border border-slate-300 rounded-md text-sm bg-white focus:outline-none"
+              className="glass-input bg-white/95 dark:bg-[#15181D]/95 py-2 px-3 text-xs min-w-[140px]"
             >
-              <option value="">All Statuses</option>
+              <option value="">Statuses</option>
               <option value="PENDING">Pending</option>
               <option value="APPROVED">Approved</option>
               <option value="ASSIGNED">Assigned</option>
@@ -269,9 +266,9 @@ export default function MaintenancePage() {
             <select 
               value={priorityFilter}
               onChange={(e) => { setPriorityFilter(e.target.value); setPage(1); }}
-              className="px-3 py-2 border border-slate-300 rounded-md text-sm bg-white focus:outline-none"
+              className="glass-input bg-white/95 dark:bg-[#15181D]/95 py-2 px-3 text-xs min-w-[140px]"
             >
-              <option value="">All Priorities</option>
+              <option value="">Priorities</option>
               <option value="LOW">Low</option>
               <option value="MEDIUM">Medium</option>
               <option value="HIGH">High</option>
@@ -281,103 +278,107 @@ export default function MaintenancePage() {
         </div>
 
         {/* Requests Table */}
-        <div className="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
+        <div className="luxury-table-container">
           {isLoading ? (
-            <div className="p-8 text-center text-slate-500">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900 mx-auto mb-4"></div>
-              Loading requests...
+            <div className="p-16 text-center text-slate-450">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#007AFF] mx-auto mb-4"></div>
+              Refreshing maintenance records...
             </div>
           ) : error ? (
-            <div className="p-8 text-center text-red-600 bg-red-50 flex items-center justify-center gap-2">
-              <AlertCircle className="h-5 w-5" />
-              <span>{error}</span>
+            <div className="p-16 text-center text-red-655 bg-red-500/5 flex flex-col items-center justify-center gap-2">
+              <AlertCircle className="h-8 w-8 text-red-500 mb-2" />
+              <p className="font-extrabold text-sm">{error}</p>
             </div>
           ) : requests.length === 0 ? (
-            <p className="p-12 text-center text-slate-400">No maintenance requests found.</p>
+            <div className="p-20 text-center flex flex-col items-center justify-center bg-white dark:bg-[#15181D]">
+              <Activity className="h-12 w-12 text-slate-350 dark:text-zinc-700 mb-3" />
+              <p className="text-sm font-extrabold text-slate-500">No maintenance tickets found</p>
+              <p className="text-xs text-slate-450 mt-1 max-w-[280px]">All devices are functional or filters are matching zero tickets.</p>
+            </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-200">
-                <thead className="bg-slate-50">
+              <table className="luxury-table">
+                <thead>
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Asset</th>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Issue</th>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Priority</th>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Technician</th>
-                    <th className="px-6 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Actions</th>
+                    <th>Asset</th>
+                    <th>Issue</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Technician</th>
+                    <th className="text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-slate-200">
+                <tbody>
                   {requests.map((r) => (
-                    <tr key={r.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900">
+                    <tr key={r.id}>
+                      <td className="font-extrabold text-foreground">
                         <div>
-                          <div>{r.asset?.name}</div>
-                          <div className="text-xs text-slate-400">{r.asset?.assetTag}</div>
+                          <div className="text-foreground">{r.asset?.name}</div>
+                          <div className="text-[10px] text-slate-400 mt-0.5">{r.asset?.assetTag}</div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 font-semibold">
+                      <td className="font-semibold text-slate-650 dark:text-slate-300">
                         {r.issueTitle}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <span className={`px-2.5 py-0.5 rounded border text-xs font-bold ${getPriorityBadge(r.priority)}`}>
+                      <td>
+                        <span className={`status-pill ${getPriorityPillClass(r.priority)}`}>
                           {r.priority}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <span className={`px-2.5 py-0.5 rounded border text-xs font-bold ${getStatusBadge(r.status)}`}>
-                          {r.status}
+                      <td>
+                        <span className={`status-pill ${getStatusPillClass(r.status)}`}>
+                          {r.status.replace("_", " ")}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-semibold">
+                      <td className="font-semibold text-slate-500 dark:text-slate-400">
                         {r.technician?.name || "Unassigned"}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-semibold space-x-2">
+                      <td className="text-right space-x-1.5 whitespace-nowrap">
                         <Link 
                           href={`/maintenance/${r.id}`}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 text-xs text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded font-bold transition-colors"
+                          className="apple-btn apple-btn-secondary py-1.5 px-3"
                         >
-                          <Info className="h-3 w-3" />
+                          <Info className="h-3.5 w-3.5" />
                           Details
                         </Link>
                         {isPrivileged && r.status === "PENDING" && (
                           <>
                             <button
                               onClick={() => handleApproveRequest(r.id, "APPROVED")}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded transition-colors font-bold"
+                              className="apple-btn apple-btn-primary py-1.5 px-3 bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/10 text-xs font-bold"
                             >
-                              <Check className="h-3 w-3" /> Approve
+                              <Check className="h-3.5 w-3.5" /> Approve
                             </button>
                             <button
                               onClick={() => handleApproveRequest(r.id, "REJECTED")}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded transition-colors font-bold"
+                              className="apple-btn apple-btn-secondary py-1.5 px-3 text-red-500 border-red-500/10 hover:bg-red-500/5 text-xs font-bold"
                             >
-                              <X className="h-3 w-3" /> Reject
+                              <X className="h-3.5 w-3.5" /> Reject
                             </button>
                           </>
                         )}
                         {isPrivileged && r.status === "APPROVED" && (
                           <button
                             onClick={() => { setSelectedRequest(r); setIsAssignModalOpen(true); }}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded transition-colors font-bold"
+                            className="apple-btn apple-btn-primary py-1.5 px-3 bg-[#8B5CF6] hover:bg-[#7C3AED] shadow-purple-500/10 text-xs font-bold"
                           >
-                            <UserPlus className="h-3 w-3" /> Assign
+                            <UserPlus className="h-3.5 w-3.5" /> Assign
                           </button>
                         )}
                         {isPrivileged && r.status === "ASSIGNED" && (
                           <button
                             onClick={() => handleUpdateStatus(r.id, "IN_PROGRESS")}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded transition-colors font-bold"
+                            className="apple-btn apple-btn-primary py-1.5 px-3 bg-[#007AFF] hover:bg-[#0066CC] shadow-blue-500/10 text-xs font-bold"
                           >
-                            <Activity className="h-3 w-3" /> Start Repair
+                            <Clock className="h-3.5 w-3.5" /> Start Repair
                           </button>
                         )}
                         {isPrivileged && r.status === "IN_PROGRESS" && (
                           <button
                             onClick={() => handleUpdateStatus(r.id, "RESOLVED")}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded transition-colors font-bold"
+                            className="apple-btn apple-btn-primary py-1.5 px-3 bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/10 text-xs font-bold"
                           >
-                            <Check className="h-3 w-3" /> Resolve
+                            <Check className="h-3.5 w-3.5" /> Resolve
                           </button>
                         )}
                       </td>
@@ -387,74 +388,88 @@ export default function MaintenancePage() {
               </table>
             </div>
           )}
+        </div>
 
-          {/* Pagination */}
-          <div className="bg-slate-50 border-t border-slate-200 px-6 py-4 flex items-center justify-between">
-            <div className="text-sm text-slate-500 font-semibold">
-              Showing <span className="font-bold text-slate-800">{requests.length}</span> of <span className="font-bold text-slate-800">{total}</span> requests
-            </div>
+        {/* Pagination Controls */}
+        {Math.ceil(total / limit) > 1 && (
+          <div className="glass-panel p-4 bg-white/50 dark:bg-[#15181D]/45 flex items-center justify-between">
+            <span className="text-[10px] font-extrabold text-slate-450 uppercase tracking-widest">
+              Page {page} of {Math.ceil(total / limit) || 1}
+            </span>
             <div className="flex gap-2">
               <button
                 onClick={() => setPage(p => Math.max(p - 1, 1))}
                 disabled={page === 1}
-                className="p-2 border border-slate-300 bg-white hover:bg-slate-100 rounded-md disabled:opacity-40 transition-colors"
+                className="apple-btn apple-btn-secondary p-2 disabled:opacity-30"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
               <button
                 onClick={() => setPage(p => (p * limit < total ? p + 1 : p))}
                 disabled={page * limit >= total}
-                className="p-2 border border-slate-300 bg-white hover:bg-slate-100 rounded-md disabled:opacity-40 transition-colors"
+                className="apple-btn apple-btn-secondary p-2 disabled:opacity-30"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>
           </div>
-        </div>
+        )}
 
         {/* MODAL: RAISE MAINTENANCE REQUEST */}
         {isAddModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
-            <div className="bg-white border border-slate-200 rounded-lg shadow-xl w-full max-w-md p-6">
+          <div className="fixed inset-0 z-55 flex items-center justify-center bg-black/40 backdrop-blur-md animate-page-enter">
+            <div className="bg-white dark:bg-[#15181D] border border-slate-200/50 dark:border-white/5 rounded-3xl shadow-2xl w-full max-w-md p-6 relative">
               <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-bold text-slate-900">Raise Maintenance Request</h3>
-                <button onClick={() => setIsAddModalOpen(false)} className="text-slate-400 hover:text-slate-600">Cancel</button>
+                <div>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <span className="window-dot dot-close" />
+                    <span className="window-dot dot-minimize" />
+                    <span className="window-dot dot-maximize" />
+                  </div>
+                  <h3 className="text-lg font-extrabold text-foreground">Raise Maintenance Request</h3>
+                </div>
+                <button 
+                  onClick={() => setIsAddModalOpen(false)} 
+                  className="p-2 text-slate-450 hover:text-foreground rounded-lg hover:bg-slate-100 dark:hover:bg-white/5"
+                >
+                  <X className="h-5 w-5" />
+                </button>
               </div>
 
               {modalError && (
-                <div className="p-3 mb-4 text-xs text-red-655 bg-red-50 border border-red-200 rounded flex items-start gap-2">
-                  <AlertTriangle className="h-4 w-4 shrink-0 text-red-500" />
+                <div className="p-3 mb-4 text-xs text-red-650 bg-red-500/10 border border-red-500/15 rounded-2xl font-bold flex items-start gap-2">
+                  <AlertCircle className="h-4.5 w-4.5 text-red-500 shrink-0" />
                   <span>{modalError}</span>
                 </div>
               )}
 
-              <form onSubmit={handleRaiseRequest} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Asset ID (UUID)</label>
+              <form onSubmit={handleRaiseRequest} className="space-y-5">
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Asset ID (UUID)</label>
                   <input 
                     type="text" required placeholder="e.g. 123e4567-e89b-12d3-a456-426614174000"
                     value={assetId}
                     onChange={(e) => setAssetId(e.target.value)}
-                    className="w-full p-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none"
+                    className="glass-input"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Issue Title</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Issue Title</label>
                   <input 
-                    type="text" required placeholder="e.g. Battery bulging, Screen flickering"
+                    type="text" required placeholder="e.g. Bulging laptop battery, Screen flickering"
                     value={issueTitle}
                     onChange={(e) => setIssueTitle(e.target.value)}
-                    className="w-full p-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none"
+                    className="glass-input"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Priority</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Priority</label>
                   <select 
                     value={priority}
                     onChange={(e) => setPriority(e.target.value)}
-                    className="w-full p-2 border border-slate-300 rounded-md text-sm bg-white focus:outline-none"
+                    className="glass-input bg-white/95 dark:bg-[#15181D]/95"
                   >
                     <option value="LOW">Low</option>
                     <option value="MEDIUM">Medium</option>
@@ -463,18 +478,18 @@ export default function MaintenancePage() {
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Description</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Description</label>
                   <textarea 
                     required
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full p-2 border border-slate-300 rounded-md text-sm h-24 resize-none focus:outline-none focus:ring-2 focus:ring-slate-900"
+                    className="glass-input h-24 resize-none"
                     placeholder="Describe the failure mode in detail..."
                   />
                 </div>
 
-                <button type="submit" className="w-full py-2 bg-slate-900 text-white hover:bg-slate-800 rounded-md text-sm font-semibold shadow-sm">
+                <button type="submit" className="w-full apple-btn apple-btn-primary py-3">
                   Submit Maintenance Request
                 </button>
               </form>
@@ -484,24 +499,36 @@ export default function MaintenancePage() {
 
         {/* MODAL: ASSIGN TECHNICIAN */}
         {isAssignModalOpen && selectedRequest && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
-            <div className="bg-white border border-slate-200 rounded-lg shadow-xl w-full max-w-md p-6">
+          <div className="fixed inset-0 z-55 flex items-center justify-center bg-black/40 backdrop-blur-md animate-page-enter">
+            <div className="bg-white dark:bg-[#15181D] border border-slate-200/50 dark:border-white/5 rounded-3xl shadow-2xl w-full max-w-md p-6 relative">
               <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-bold text-slate-900">Assign Technician</h3>
-                <button onClick={() => setIsAssignModalOpen(false)} className="text-slate-400 hover:text-slate-600">Cancel</button>
-              </div>
-              <p className="text-sm text-slate-500 mb-4">Assigning task: <span className="font-semibold text-slate-850">"{selectedRequest.issueTitle}"</span></p>
-
-              {modalError && <div className="p-3 mb-4 text-xs text-red-600 bg-red-50 border border-red-200 rounded">{modalError}</div>}
-
-              <form onSubmit={handleAssignTechnician} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Select Technician</label>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <span className="window-dot dot-close" />
+                    <span className="window-dot dot-minimize" />
+                    <span className="window-dot dot-maximize" />
+                  </div>
+                  <h3 className="text-lg font-extrabold text-foreground">Assign Technician</h3>
+                </div>
+                <button 
+                  onClick={() => setIsAssignModalOpen(false)} 
+                  className="p-2 text-slate-455 hover:text-foreground rounded-lg hover:bg-slate-100 dark:hover:bg-white/5"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <p className="text-xs text-slate-500 mb-6 font-semibold">Assigning: <span className="text-foreground font-extrabold">"{selectedRequest.issueTitle}"</span></p>
+
+              {modalError && <div className="p-3 mb-4 text-xs text-red-600 bg-red-500/10 border border-red-500/15 rounded-2xl font-bold flex items-center gap-2">{modalError}</div>}
+
+              <form onSubmit={handleAssignTechnician} className="space-y-5">
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Select Technician</label>
                   <select 
                     required
                     value={assignedTo}
                     onChange={(e) => setAssignedTo(e.target.value)}
-                    className="w-full p-2 border border-slate-300 rounded-md text-sm bg-white focus:outline-none"
+                    className="glass-input bg-white/95 dark:bg-[#15181D]/95"
                   >
                     <option value="">Select Employee...</option>
                     {employees.map(emp => (
@@ -509,7 +536,7 @@ export default function MaintenancePage() {
                     ))}
                   </select>
                 </div>
-                <button type="submit" className="w-full py-2 bg-slate-900 text-white hover:bg-slate-800 rounded-md text-sm font-semibold">
+                <button type="submit" className="w-full apple-btn apple-btn-primary py-3">
                   Confirm Assignment
                 </button>
               </form>

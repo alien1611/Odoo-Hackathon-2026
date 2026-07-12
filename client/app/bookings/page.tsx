@@ -8,14 +8,11 @@ import {
   Calendar as CalendarIcon, 
   Plus, 
   Clock, 
-  MapPin, 
   User, 
   X, 
   Check, 
-  AlertTriangle,
   ChevronLeft,
   ChevronRight,
-  TrendingUp,
   AlertCircle
 } from "lucide-react";
 
@@ -142,13 +139,13 @@ export default function BookingsPage() {
     setModalError(null);
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusPillClass = (status: string) => {
     switch (status) {
-      case "APPROVED": return "bg-emerald-50 text-emerald-700 border-emerald-200";
-      case "PENDING": return "bg-amber-50 text-amber-700 border-amber-200";
-      case "REJECTED": return "bg-rose-50 text-rose-700 border-rose-200";
-      case "CANCELLED": return "bg-slate-50 text-slate-700 border-slate-200";
-      default: return "bg-slate-50 text-slate-700 border-slate-200";
+      case "APPROVED": return "status-pill-available";
+      case "PENDING": return "status-pill-reserved";
+      case "REJECTED": return "status-pill-lost";
+      case "CANCELLED": return "bg-slate-100 text-slate-500 border-slate-200/50";
+      default: return "bg-slate-100 text-slate-700 border-slate-200";
     }
   };
 
@@ -176,16 +173,17 @@ export default function BookingsPage() {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-8 animate-page-enter">
+        
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Resource Booking Calendar</h1>
-            <p className="text-sm text-slate-500 mt-1">Book shared resources like meeting rooms, conference halls, and projectors.</p>
+            <h1 className="text-2xl font-extrabold tracking-tight text-foreground">Resource Bookings</h1>
+            <p className="text-xs text-slate-450 dark:text-slate-450 mt-1">Reserve workspaces, meeting rooms, and corporate hardware.</p>
           </div>
           <button 
             onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-md hover:bg-slate-800 transition-colors text-sm font-semibold shadow-sm"
+            className="apple-btn apple-btn-primary"
           >
             <Plus className="h-4 w-4" />
             New Booking
@@ -193,19 +191,27 @@ export default function BookingsPage() {
         </div>
 
         {/* View Toggle / Navigation bar */}
-        <div className="flex justify-between items-center bg-white p-4 border border-slate-200 rounded-lg shadow-sm">
-          <div className="flex gap-2">
+        <div className="glass-panel p-4 bg-white/50 dark:bg-[#15181D]/45 flex justify-between items-center">
+          <div className="flex gap-2 bg-slate-100/50 dark:bg-white/5 p-1 rounded-2xl">
             <button 
               onClick={() => setViewMode("LIST")}
-              className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${viewMode === "LIST" ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-50"}`}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 ${
+                viewMode === "LIST" 
+                  ? "bg-white dark:bg-[#15181D] text-[#007AFF] shadow-md shadow-black/5" 
+                  : "text-slate-500 hover:text-foreground"
+              }`}
             >
               List View
             </button>
             <button 
               onClick={() => setViewMode("MONTH")}
-              className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${viewMode === "MONTH" ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-50"}`}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 ${
+                viewMode === "MONTH" 
+                  ? "bg-white dark:bg-[#15181D] text-[#007AFF] shadow-md shadow-black/5" 
+                  : "text-slate-500 hover:text-foreground"
+              }`}
             >
-              Month Calendar
+              Calendar View
             </button>
           </div>
 
@@ -213,18 +219,20 @@ export default function BookingsPage() {
             <div className="flex items-center gap-3">
               <button 
                 onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))}
-                className="p-1.5 hover:bg-slate-100 rounded-md border border-slate-250"
+                className="apple-btn apple-btn-secondary p-2"
+                aria-label="Previous month"
               >
-                <ChevronLeft className="h-4 w-4 text-slate-600" />
+                <ChevronLeft className="h-4 w-4" />
               </button>
-              <span className="text-sm font-bold text-slate-800 uppercase tracking-wide">
+              <span className="text-xs font-extrabold uppercase tracking-widest text-foreground px-2">
                 {currentDate.toLocaleString("default", { month: "long", year: "numeric" })}
               </span>
               <button 
                 onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))}
-                className="p-1.5 hover:bg-slate-100 rounded-md border border-slate-250"
+                className="apple-btn apple-btn-secondary p-2"
+                aria-label="Next month"
               >
-                <ChevronRight className="h-4 w-4 text-slate-600" />
+                <ChevronRight className="h-4 w-4" />
               </button>
             </div>
           )}
@@ -232,46 +240,51 @@ export default function BookingsPage() {
 
         {/* Master Content Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
           {/* Main Booking View */}
           <div className="lg:col-span-2 space-y-6">
             {viewMode === "LIST" ? (
-              <div className="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
-                <div className="px-6 py-4 border-b border-slate-100">
-                  <h3 className="font-bold text-slate-900">All Bookings</h3>
+              <div className="luxury-table-container">
+                <div className="px-6 py-4 border-b border-slate-200/20 dark:border-white/5 bg-slate-50/50 dark:bg-white/1 flex items-center justify-between">
+                  <h3 className="font-extrabold text-xs uppercase tracking-widest text-slate-450">All Bookings</h3>
                 </div>
                 {isLoading ? (
-                  <div className="p-8 text-center text-slate-500">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900 mx-auto mb-4"></div>
-                    Loading bookings...
+                  <div className="p-16 text-center text-slate-450">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#007AFF] mx-auto mb-4"></div>
+                    Refreshing schedules...
                   </div>
                 ) : error ? (
-                  <div className="p-8 text-center text-red-600 bg-red-50 flex items-center justify-center gap-2">
-                    <AlertCircle className="h-5 w-5" />
-                    <span>{error}</span>
+                  <div className="p-16 text-center text-red-650 bg-red-500/5 flex flex-col items-center justify-center gap-2">
+                    <AlertCircle className="h-8 w-8 text-red-500 mb-2" />
+                    <p className="font-extrabold text-sm">{error}</p>
                   </div>
                 ) : bookings.length === 0 ? (
-                  <p className="p-8 text-center text-slate-400">No bookings recorded yet.</p>
+                  <div className="p-20 text-center flex flex-col items-center justify-center">
+                    <CalendarIcon className="h-12 w-12 text-slate-350 dark:text-zinc-700 mb-3" />
+                    <p className="text-sm font-extrabold text-slate-500">No bookings recorded</p>
+                    <p className="text-xs text-slate-400 mt-1 max-w-[280px]">Be the first to request a room reservation.</p>
+                  </div>
                 ) : (
-                  <div className="divide-y divide-slate-100">
+                  <div className="divide-y divide-slate-250/20 dark:divide-white/5">
                     {bookings.map((booking) => {
-                      const startStr = new Date(booking.startTime).toLocaleString();
-                      const endStr = new Date(booking.endTime).toLocaleString();
+                      const startStr = new Date(booking.startTime).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' });
+                      const endStr = new Date(booking.endTime).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' });
                       const isOwner = currentUser?.id === booking.bookedBy;
                       const isApprover = ["ADMIN", "ASSET_MANAGER", "DEPARTMENT_HEAD"].includes(currentUser?.role || "");
 
                       return (
-                        <div key={booking.id} className="p-6 hover:bg-slate-50 transition-colors flex flex-col sm:flex-row justify-between gap-4">
+                        <div key={booking.id} className="p-6 hover:bg-slate-50/50 dark:hover:bg-white/1 transition-all duration-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                           <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                              <span className={`px-2.5 py-0.5 rounded border text-xs font-bold ${getStatusBadge(booking.status)}`}>
+                            <div className="flex items-center gap-2.5">
+                              <span className={`status-pill ${getStatusPillClass(booking.status)}`}>
                                 {booking.status}
                               </span>
-                              <span className="text-sm font-bold text-slate-800">{booking.resourceType}</span>
+                              <span className="text-sm font-extrabold text-foreground">{booking.resourceType}</span>
                             </div>
-                            <p className="text-sm text-slate-600 font-semibold">{booking.purpose}</p>
-                            <div className="flex flex-wrap gap-4 text-xs text-slate-400 font-semibold">
-                              <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {startStr} - {endStr}</span>
-                              <span className="flex items-center gap-1"><User className="h-3.5 w-3.5" /> Booked by: {booking.user?.name || "Unknown"}</span>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">{booking.purpose}</p>
+                            <div className="flex flex-wrap gap-4 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                              <span className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" /> {startStr} - {endStr}</span>
+                              <span className="flex items-center gap-1.5"><User className="h-3.5 w-3.5" /> By: {booking.user?.name || "Unknown"}</span>
                             </div>
                           </div>
 
@@ -280,24 +293,24 @@ export default function BookingsPage() {
                               <>
                                 <button 
                                   onClick={() => handleApprove(booking.id)}
-                                  className="p-1 px-2 text-xs bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded font-bold transition-colors flex items-center gap-1"
+                                  className="apple-btn apple-btn-primary py-1.5 px-3 bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/10 text-xs font-bold"
                                 >
-                                  <Check className="h-3 w-3" /> Approve
+                                  <Check className="h-3.5 w-3.5" /> Approve
                                 </button>
                                 <button 
                                   onClick={() => handleReject(booking.id)}
-                                  className="p-1 px-2 text-xs bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 rounded font-bold transition-colors flex items-center gap-1"
+                                  className="apple-btn apple-btn-secondary py-1.5 px-3 text-red-500 border-red-500/10 hover:bg-red-500/5 text-xs font-bold"
                                 >
-                                  <X className="h-3 w-3" /> Reject
+                                  <X className="h-3.5 w-3.5" /> Reject
                                 </button>
                               </>
                             )}
                             {booking.status === "PENDING" && (isOwner || isApprover) && (
                               <button 
                                 onClick={() => handleCancel(booking.id)}
-                                className="p-1 px-2 text-xs hover:bg-red-50 border text-red-600 rounded font-bold transition-colors flex items-center gap-1"
+                                className="apple-btn apple-btn-secondary py-1.5 px-3 text-red-500 border-red-500/10 hover:bg-red-500/5 text-xs font-bold"
                               >
-                                <X className="h-3 w-3" /> Cancel
+                                <X className="h-3.5 w-3.5" /> Cancel
                               </button>
                             )}
                           </div>
@@ -309,8 +322,8 @@ export default function BookingsPage() {
               </div>
             ) : (
               // Month Calendar View Grid
-              <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-4">
-                <div className="grid grid-cols-7 gap-1 text-center font-bold text-xs text-slate-500 uppercase tracking-wider mb-2">
+              <div className="glass-panel p-4 bg-white/50 dark:bg-[#15181D]/45">
+                <div className="grid grid-cols-7 gap-1 text-center font-extrabold text-[9px] text-slate-450 dark:text-slate-500 uppercase tracking-widest mb-3">
                   <div>Sun</div>
                   <div>Mon</div>
                   <div>Tue</div>
@@ -320,9 +333,9 @@ export default function BookingsPage() {
                   <div>Sat</div>
                 </div>
 
-                <div className="grid grid-cols-7 gap-1 bg-slate-100 p-0.5 rounded border border-slate-200">
+                <div className="grid grid-cols-7 gap-1.5 bg-slate-200/40 dark:bg-black/20 p-1.5 rounded-2xl border border-slate-200/10">
                   {calendarDays.map((day, idx) => {
-                    if (!day) return <div key={`empty-${idx}`} className="bg-white min-h-[90px] p-1.5" />;
+                    if (!day) return <div key={`empty-${idx}`} className="bg-white/40 dark:bg-[#15181D]/20 min-h-[90px] p-2 rounded-xl" />;
                     
                     const dayBookings = getBookingsForDay(day);
                     const isToday = day.toISOString().split("T")[0] === today;
@@ -330,22 +343,28 @@ export default function BookingsPage() {
                     return (
                       <div 
                         key={day.toISOString()} 
-                        className={`bg-white min-h-[90px] p-1.5 border border-slate-100 flex flex-col justify-between hover:bg-slate-50 transition-colors ${isToday ? "ring-2 ring-slate-900 ring-inset" : ""}`}
+                        className={`bg-white dark:bg-[#15181D] min-h-[95px] p-2 rounded-xl border border-slate-250/15 dark:border-white/5 flex flex-col justify-between hover:bg-slate-50 dark:hover:bg-white/1 transition-all duration-200 ${
+                          isToday ? "ring-2 ring-[#007AFF] ring-inset" : ""
+                        }`}
                       >
-                        <span className={`text-xs font-bold ${isToday ? "text-slate-900" : "text-slate-400"}`}>{day.getDate()}</span>
+                        <span className={`text-[10px] font-extrabold ${isToday ? "text-[#007AFF]" : "text-slate-450"}`}>{day.getDate()}</span>
                         
-                        <div className="space-y-1 mt-1 flex-1 flex flex-col justify-end">
+                        <div className="space-y-1 mt-2 flex-1 flex flex-col justify-end">
                           {dayBookings.slice(0, 2).map((b) => (
                             <div 
                               key={b.id} 
-                              className={`text-[9px] font-bold p-0.5 px-1 rounded border overflow-hidden truncate ${b.status === "APPROVED" ? "bg-emerald-50 text-emerald-800 border-emerald-100" : "bg-amber-50 text-amber-800 border-amber-100"}`}
+                              className={`text-[8px] font-bold p-1 rounded-lg border overflow-hidden truncate ${
+                                b.status === "APPROVED" 
+                                  ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/10" 
+                                  : "bg-amber-500/10 text-amber-500 border-amber-500/10"
+                              }`}
                               title={`${b.resourceType}: ${b.purpose}`}
                             >
                               {b.resourceType.split(" ")[0]}: {b.purpose}
                             </div>
                           ))}
                           {dayBookings.length > 2 && (
-                            <div className="text-[8px] font-extrabold text-slate-400 text-center">
+                            <div className="text-[8px] font-extrabold text-slate-450 text-center mt-0.5">
                               +{dayBookings.length - 2} more
                             </div>
                           )}
@@ -360,24 +379,27 @@ export default function BookingsPage() {
 
           {/* Schedule Sidebar */}
           <div className="space-y-6">
+            
             {/* Today's Schedule panel */}
-            <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-5 space-y-4">
-              <h3 className="font-bold text-slate-950 flex items-center gap-2 border-b border-slate-100 pb-3">
-                <Clock className="h-5 w-5 text-slate-400" />
+            <div className="premium-card p-5 space-y-4">
+              <h3 className="font-extrabold text-xs uppercase tracking-widest text-slate-450 flex items-center gap-2 pb-2 border-b border-slate-250/20 dark:border-white/5">
+                <Clock className="h-4.5 w-4.5 text-slate-400" />
                 Today's Bookings
               </h3>
               {todayBookings.length === 0 ? (
-                <p className="text-slate-400 text-xs text-center py-4">No reservations scheduled for today.</p>
+                <p className="text-slate-450 text-[10px] font-semibold text-center py-6">No reservations scheduled.</p>
               ) : (
                 <div className="space-y-3">
                   {todayBookings.map(b => (
-                    <div key={b.id} className="p-3 border border-slate-150 rounded bg-slate-50 text-xs space-y-1">
-                      <div className="flex justify-between items-center font-bold text-slate-800">
+                    <div key={b.id} className="p-3 border border-slate-200/50 dark:border-white/5 rounded-xl bg-slate-50/50 dark:bg-white/1 text-xs space-y-1">
+                      <div className="flex justify-between items-center font-bold text-foreground">
                         <span>{b.resourceType}</span>
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded ${b.status === "APPROVED" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}`}>{b.status}</span>
+                        <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full ${
+                          b.status === "APPROVED" ? "bg-emerald-500/10 text-emerald-500" : "bg-amber-500/10 text-amber-500"
+                        }`}>{b.status}</span>
                       </div>
-                      <p className="text-slate-600 font-semibold">{b.purpose}</p>
-                      <p className="text-slate-400 font-medium">
+                      <p className="text-slate-500 dark:text-slate-400 font-semibold">{b.purpose}</p>
+                      <p className="text-slate-400 text-[10px] font-bold">
                         {new Date(b.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} - {new Date(b.endTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </p>
                     </div>
@@ -387,53 +409,66 @@ export default function BookingsPage() {
             </div>
 
             {/* Upcoming Schedule panel */}
-            <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-5 space-y-4">
-              <h3 className="font-bold text-slate-950 flex items-center gap-2 border-b border-slate-100 pb-3">
-                <CalendarIcon className="h-5 w-5 text-slate-400" />
+            <div className="premium-card p-5 space-y-4">
+              <h3 className="font-extrabold text-xs uppercase tracking-widest text-slate-450 flex items-center gap-2 pb-2 border-b border-slate-250/20 dark:border-white/5">
+                <CalendarIcon className="h-4.5 w-4.5 text-slate-400" />
                 Upcoming Requests
               </h3>
               {upcomingBookings.length === 0 ? (
-                <p className="text-slate-400 text-xs text-center py-4">No upcoming reservations logged.</p>
+                <p className="text-slate-450 text-[10px] font-semibold text-center py-6">No upcoming reservations logged.</p>
               ) : (
                 <div className="space-y-3">
                   {upcomingBookings.slice(0, 5).map(b => (
-                    <div key={b.id} className="p-3 border border-slate-150 rounded bg-slate-50 text-xs space-y-1">
-                      <div className="flex justify-between items-center font-bold text-slate-800">
+                    <div key={b.id} className="p-3 border border-slate-200/50 dark:border-white/5 rounded-xl bg-slate-50/50 dark:bg-white/1 text-xs space-y-1">
+                      <div className="flex justify-between items-center font-bold text-foreground">
                         <span>{b.resourceType}</span>
-                        <span className="text-slate-400 font-medium">{new Date(b.startTime).toLocaleDateString()}</span>
+                        <span className="text-slate-400 font-bold text-[9px]">{new Date(b.startTime).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
                       </div>
-                      <p className="text-slate-600 font-semibold">{b.purpose}</p>
+                      <p className="text-slate-500 dark:text-slate-400 font-semibold truncate">{b.purpose}</p>
                     </div>
                   ))}
                 </div>
               )}
             </div>
+
           </div>
         </div>
 
         {/* NEW BOOKING REQUEST MODAL */}
         {isAddModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
-            <div className="bg-white border border-slate-200 rounded-lg shadow-xl w-full max-w-md p-6">
+          <div className="fixed inset-0 z-55 flex items-center justify-center bg-black/40 backdrop-blur-md animate-page-enter">
+            <div className="bg-white dark:bg-[#15181D] border border-slate-200/50 dark:border-white/5 rounded-3xl shadow-2xl w-full max-w-md p-6 relative">
               <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-bold text-slate-900">Request Resource Booking</h3>
-                <button onClick={() => setIsAddModalOpen(false)} className="text-slate-400 hover:text-slate-600">Cancel</button>
+                <div>
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <span className="window-dot dot-close" />
+                    <span className="window-dot dot-minimize" />
+                    <span className="window-dot dot-maximize" />
+                  </div>
+                  <h3 className="text-lg font-extrabold text-foreground">Request Resource Booking</h3>
+                </div>
+                <button 
+                  onClick={() => setIsAddModalOpen(false)} 
+                  className="p-1 text-slate-400 hover:text-foreground rounded-lg hover:bg-slate-100 dark:hover:bg-white/5"
+                >
+                  <X className="h-5 w-5" />
+                </button>
               </div>
 
               {modalError && (
-                <div className="p-3 mb-4 text-xs text-red-650 bg-red-50 border border-red-200 rounded flex items-start gap-2">
-                  <AlertTriangle className="h-4 w-4 shrink-0 text-red-500" />
+                <div className="p-3 mb-4 text-xs text-red-650 bg-red-500/10 border border-red-500/15 rounded-2xl font-bold flex items-center gap-2">
+                  <AlertCircle className="h-4.5 w-4.5 text-red-500 shrink-0" />
                   <span>{modalError}</span>
                 </div>
               )}
 
-              <form onSubmit={handleCreateBooking} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Resource Type</label>
+              <form onSubmit={handleCreateBooking} className="space-y-5">
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Resource Type</label>
                   <select 
                     value={resourceType}
                     onChange={(e) => setResourceType(e.target.value)}
-                    className="w-full p-2 border border-slate-300 rounded-md text-sm bg-white focus:outline-none"
+                    className="glass-input bg-white/95 dark:bg-[#15181D]/95"
                   >
                     <option value="Meeting Room">Meeting Room</option>
                     <option value="Conference Hall">Conference Hall</option>
@@ -443,48 +478,48 @@ export default function BookingsPage() {
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Resource ID (UUID)</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Resource ID (UUID)</label>
                   <input 
                     type="text" required placeholder="e.g. 123e4567-e89b-12d3-a456-426614174000"
                     value={resourceId}
                     onChange={(e) => setResourceId(e.target.value)}
-                    className="w-full p-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                    className="glass-input"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Start Date & Time</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Start Date & Time</label>
                   <input 
                     type="datetime-local" required
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
-                    className="w-full p-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                    className="glass-input"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">End Date & Time</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">End Date & Time</label>
                   <input 
                     type="datetime-local" required
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
-                    className="w-full p-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                    className="glass-input"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Booking Purpose</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Booking Purpose</label>
                   <textarea 
                     required
                     value={purpose}
                     onChange={(e) => setPurpose(e.target.value)}
-                    className="w-full p-2 border border-slate-300 rounded-md text-sm h-20 resize-none focus:outline-none focus:ring-2 focus:ring-slate-900"
+                    className="glass-input h-20 resize-none"
                     placeholder="Specify booking description/purpose..."
                   />
                 </div>
 
-                <button type="submit" className="w-full py-2 bg-slate-900 text-white hover:bg-slate-800 rounded-md text-sm font-semibold shadow-sm">
+                <button type="submit" className="w-full apple-btn apple-btn-primary py-3">
                   Request Reservation
                 </button>
               </form>

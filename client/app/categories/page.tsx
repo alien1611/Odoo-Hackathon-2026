@@ -12,7 +12,6 @@ import {
   Trash2, 
   X, 
   Braces, 
-  Check,
   Loader2
 } from "lucide-react";
 
@@ -185,17 +184,18 @@ export default function CategoriesPage() {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-8 animate-page-enter">
+        
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Asset Categories</h1>
-            <p className="text-sm text-slate-500 mt-1">Configure asset templates and custom JSON fields</p>
+            <h1 className="text-2xl font-extrabold tracking-tight text-foreground">Asset Categories</h1>
+            <p className="text-xs text-slate-450 dark:text-slate-450 mt-1">Configure asset templates and define custom metadata attributes.</p>
           </div>
           {isAdmin && (
             <button 
               onClick={openCreateModal}
-              className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-slate-800 transition-colors font-medium text-sm"
+              className="apple-btn apple-btn-primary"
             >
               <Plus className="h-4 w-4" />
               Add Category
@@ -204,7 +204,7 @@ export default function CategoriesPage() {
         </div>
 
         {/* Filter Toolbar */}
-        <div className="bg-white border border-slate-200 rounded-lg p-4 flex flex-col md:flex-row gap-4 items-center justify-between shadow-sm">
+        <div className="glass-panel p-4 bg-white/50 dark:bg-[#15181D]/45 flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="relative w-full md:w-80">
             <Search className="absolute left-3 top-2.5 h-4.5 w-4.5 text-slate-400" />
             <input
@@ -212,52 +212,53 @@ export default function CategoriesPage() {
               placeholder="Search categories..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900 text-sm"
+              className="glass-input pl-10"
             />
           </div>
-          <div className="text-xs text-slate-400 font-semibold uppercase">
-            Showing {filteredCategories.length} of {categories.length} Templates
+          <div className="text-[10px] text-slate-450 font-extrabold uppercase tracking-widest">
+            {filteredCategories.length} Templates Configured
           </div>
         </div>
 
         {/* List Grid */}
         {isLoading ? (
-          <div className="flex justify-center items-center py-20 bg-white border border-slate-200 rounded-lg">
-            <Loader2 className="h-8 w-8 text-slate-400 animate-spin" />
+          <div className="p-16 text-center text-slate-455">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#007AFF] mx-auto mb-4"></div>
+            Loading templates...
           </div>
         ) : filteredCategories.length === 0 ? (
-          <div className="bg-white border border-slate-200 rounded-lg py-16 px-4 text-center">
-            <Tag className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-            <h3 className="text-base font-bold text-slate-800">No Categories Defined</h3>
-            <p className="text-sm text-slate-500 mt-1">Configure asset templates and define custom metadata attributes.</p>
+          <div className="p-20 text-center flex flex-col items-center justify-center bg-white dark:bg-[#15181D] rounded-3xl border border-slate-250/20 dark:border-white/5">
+            <Tag className="h-12 w-12 text-slate-350 dark:text-zinc-700 mb-3" />
+            <p className="text-sm font-extrabold text-slate-500">No categories found</p>
+            <p className="text-xs text-slate-400 mt-1 max-w-[280px]">Add an asset category to setup schema attributes.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCategories.map((cat) => (
               <div 
                 key={cat.id} 
-                className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm hover:shadow-md hover:border-slate-300 transition-all flex flex-col justify-between"
+                className="premium-card p-6 flex flex-col justify-between min-h-[220px]"
               >
                 <div>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="p-2 bg-slate-150 rounded text-slate-800">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 bg-slate-100 dark:bg-white/5 rounded-xl text-foreground">
                         <Tag className="h-4.5 w-4.5" />
                       </div>
-                      <h3 className="font-bold text-slate-900 text-base">{cat.name}</h3>
+                      <h3 className="font-extrabold text-base tracking-tight text-foreground">{cat.name}</h3>
                     </div>
                     {isAdmin && (
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1">
                         <button
                           onClick={() => openEditModal(cat)}
-                          className="p-1 text-slate-500 hover:bg-slate-100 rounded"
+                          className="p-2 text-slate-400 hover:text-foreground rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-all"
                           title="Edit"
                         >
                           <Edit2 className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(cat.id)}
-                          className="p-1 text-red-500 hover:bg-red-50 rounded"
+                          className="p-2 text-red-500 hover:bg-red-500/5 rounded-lg transition-all"
                           title="Delete"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -265,30 +266,30 @@ export default function CategoriesPage() {
                       </div>
                     )}
                   </div>
-                  <p className="text-sm text-slate-500 mt-3 line-clamp-2">
-                    {cat.description || "No description provided."}
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-4 line-clamp-3 leading-relaxed">
+                    {cat.description || "No template description provided."}
                   </p>
                 </div>
 
-                <div className="mt-5 pt-4 border-t border-slate-100">
-                  <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 uppercase mb-2">
+                <div className="mt-6 pt-4 border-t border-slate-100/50 dark:border-white/5">
+                  <div className="flex items-center gap-1.5 text-[9px] font-extrabold tracking-widest text-slate-450 uppercase mb-3">
                     <Braces className="h-3.5 w-3.5" />
-                    <span>Custom Schema Fields</span>
+                    <span>Schema Fields</span>
                   </div>
                   {cat.customFields && Object.keys(cat.customFields).length > 0 ? (
                     <div className="flex flex-wrap gap-1.5">
                       {Object.entries(cat.customFields).map(([name, type]) => (
                         <span 
                           key={name} 
-                          className="inline-flex items-center gap-1 py-0.5 px-2 bg-slate-50 border border-slate-200 rounded text-xs text-slate-650"
+                          className="inline-flex items-center gap-1.5 py-1 px-3 rounded-lg border border-slate-200/50 dark:border-white/5 bg-slate-50 dark:bg-white/5 text-[10px] font-bold text-slate-600 dark:text-slate-400"
                         >
-                          <span className="font-bold">{name}</span>
-                          <span className="text-[10px] text-slate-400 font-medium">({type})</span>
+                          <span className="font-extrabold">{name}</span>
+                          <span className="text-[9px] text-[#007AFF]">({type})</span>
                         </span>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-xs text-slate-400 italic">No custom fields defined</p>
+                    <p className="text-[10px] text-slate-400 font-bold italic">No custom attributes schema.</p>
                   )}
                 </div>
               </div>
@@ -298,29 +299,36 @@ export default function CategoriesPage() {
 
         {/* Modal: Create/Edit Category */}
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-            <div className="bg-white rounded-lg border border-slate-200 w-full max-w-lg shadow-2xl overflow-hidden flex flex-col">
-              <div className="h-14 border-b border-slate-250 flex items-center justify-between px-6 bg-slate-50">
-                <h3 className="text-base font-bold text-slate-900">
-                  {editingCategory ? "Edit Asset Category" : "Add Asset Category"}
-                </h3>
+          <div className="fixed inset-0 z-55 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-page-enter">
+            <div className="bg-white dark:bg-[#15181D] border border-slate-200/50 dark:border-white/5 rounded-3xl shadow-2xl w-full max-w-lg relative overflow-hidden flex flex-col">
+              <div className="h-16 border-b border-slate-100 dark:border-white/5 flex items-center justify-between px-6 bg-slate-50/50 dark:bg-[#15181D]/30">
+                <div>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <span className="window-dot dot-close" />
+                    <span className="window-dot dot-minimize" />
+                    <span className="window-dot dot-maximize" />
+                  </div>
+                  <h3 className="text-base font-extrabold text-foreground">
+                    {editingCategory ? "Edit Asset Category" : "Add Asset Category"}
+                  </h3>
+                </div>
                 <button 
                   onClick={() => setIsModalOpen(false)}
-                  className="p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-800 rounded-md"
+                  className="p-2 text-slate-400 hover:text-foreground rounded-lg hover:bg-slate-100 dark:hover:bg-white/5"
                 >
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
-              <form onSubmit={handleFormSubmit} className="p-6 space-y-4">
+              <form onSubmit={handleFormSubmit} className="p-6 space-y-5 overflow-y-auto max-h-[70vh]">
                 {formError && (
-                  <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-md">
+                  <div className="p-3 bg-red-500/10 border border-red-500/15 text-red-600 dark:text-red-400 text-xs font-bold rounded-2xl flex items-center gap-2">
                     {formError}
                   </div>
                 )}
 
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">
                     Category Name
                   </label>
                   <input
@@ -329,13 +337,13 @@ export default function CategoriesPage() {
                     value={formData.name}
                     onChange={handleInputChange}
                     placeholder="e.g. Computing Devices"
-                    className="w-full px-3 py-2 border border-slate-350 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900 text-sm"
+                    className="glass-input"
                     required
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">
                     Description
                   </label>
                   <textarea
@@ -344,15 +352,15 @@ export default function CategoriesPage() {
                     onChange={handleInputChange}
                     placeholder="Describe assets covered under this category..."
                     rows={2}
-                    className="w-full px-3 py-2 border border-slate-350 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900 text-sm"
+                    className="glass-input resize-none"
                   />
                 </div>
 
                 {/* Custom Fields Builder */}
-                <div className="border border-slate-200 rounded-lg p-4 bg-slate-50">
-                  <div className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-1.5">
+                <div className="border border-slate-200/50 dark:border-white/5 rounded-2xl p-4 bg-slate-50/50 dark:bg-white/1">
+                  <div className="text-xs font-extrabold text-foreground mb-4 flex items-center gap-1.5">
                     <Braces className="h-4.5 w-4.5 text-slate-400" />
-                    Custom Attributes Schema
+                    Schema Attributes Builder
                   </div>
 
                   {/* Add Field Inputs */}
@@ -362,12 +370,12 @@ export default function CategoriesPage() {
                       placeholder="Field name (e.g. RAM)"
                       value={newFieldName}
                       onChange={(e) => setNewFieldName(e.target.value)}
-                      className="flex-1 min-w-0 px-3 py-1.5 border border-slate-300 bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900 text-xs"
+                      className="flex-1 min-w-0 glass-input text-xs py-1.5"
                     />
                     <select
                       value={newFieldType}
                       onChange={(e) => setNewFieldType(e.target.value)}
-                      className="w-28 px-2 py-1.5 border border-slate-300 bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900 text-xs"
+                      className="w-28 glass-input bg-white/95 dark:bg-[#15181D]/95 text-xs py-1.5"
                     >
                       <option value="text">Text</option>
                       <option value="number">Number</option>
@@ -377,7 +385,7 @@ export default function CategoriesPage() {
                     <button
                       type="button"
                       onClick={addCustomField}
-                      className="bg-slate-900 text-white px-3 py-1.5 rounded-md hover:bg-slate-800 text-xs font-semibold flex items-center gap-1 shrink-0"
+                      className="apple-btn apple-btn-primary py-2 px-4 text-xs font-bold shrink-0"
                     >
                       <Plus className="h-3.5 w-3.5" /> Add
                     </button>
@@ -385,15 +393,15 @@ export default function CategoriesPage() {
 
                   {/* Fields list */}
                   {customFields.length === 0 ? (
-                    <p className="text-xs text-slate-400 italic">No custom attributes added yet.</p>
+                    <p className="text-[10px] text-slate-400 font-bold italic">No custom attributes added yet.</p>
                   ) : (
                     <div className="flex flex-wrap gap-2">
                       {customFields.map((field, idx) => (
                         <span 
                           key={idx}
-                          className="inline-flex items-center gap-1.5 py-1 pl-2.5 pr-1.5 bg-white border border-slate-200 rounded-md text-xs"
+                          className="inline-flex items-center gap-2 py-1 px-3 bg-white dark:bg-[#15181D] border border-slate-250/20 dark:border-white/5 rounded-xl text-xs font-semibold"
                         >
-                          <span className="font-semibold text-slate-700">{field.name}</span>
+                          <span className="font-extrabold text-foreground">{field.name}</span>
                           <span className="text-[10px] text-slate-400">({field.type})</span>
                           <button
                             type="button"
@@ -408,18 +416,18 @@ export default function CategoriesPage() {
                   )}
                 </div>
 
-                <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">
+                <div className="pt-4 border-t border-slate-100 dark:border-white/5 flex justify-end gap-3">
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="px-4 py-2 border border-slate-200 text-slate-700 rounded-md hover:bg-slate-50 text-sm font-semibold"
+                    className="apple-btn apple-btn-secondary px-4 py-2"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-4 py-2 bg-slate-900 text-white rounded-md hover:bg-slate-800 text-sm font-semibold flex items-center gap-1.5 disabled:opacity-50"
+                    className="apple-btn apple-btn-primary px-4 py-2"
                   >
                     {isSubmitting ? (
                       <>

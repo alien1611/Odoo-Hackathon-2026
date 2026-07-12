@@ -7,7 +7,6 @@ import { api } from "@/lib/axios";
 import { 
   Plus, 
   Search, 
-  Filter, 
   Tag, 
   Building2, 
   Info, 
@@ -18,7 +17,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Download,
-  AlertCircle
+  AlertCircle,
+  X,
+  Package
 } from "lucide-react";
 import Link from "next/link";
 
@@ -237,29 +238,30 @@ export default function AssetsPage() {
     setModalError(null);
   };
 
-  const getStatusBadgeClass = (status: string) => {
+  const getStatusPillClass = (status: string) => {
     switch (status) {
-      case "AVAILABLE": return "bg-emerald-50 text-emerald-700 border-emerald-200";
-      case "ALLOCATED": return "bg-blue-50 text-blue-700 border-blue-200";
-      case "RESERVED": return "bg-amber-50 text-amber-700 border-amber-200";
-      case "UNDER_MAINTENANCE": return "bg-orange-50 text-orange-700 border-orange-200";
-      case "LOST": return "bg-rose-50 text-rose-700 border-rose-200";
-      default: return "bg-slate-50 text-slate-700 border-slate-200";
+      case "AVAILABLE": return "status-pill-available";
+      case "ALLOCATED": return "status-pill-allocated";
+      case "RESERVED": return "status-pill-reserved";
+      case "UNDER_MAINTENANCE": return "status-pill-maintenance";
+      case "LOST": return "status-pill-lost";
+      default: return "bg-slate-100 text-slate-700 border-slate-200";
     }
   };
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-8 animate-page-enter">
+        
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Asset Management</h1>
-            <p className="text-sm text-slate-500 mt-1">Track and manage lifecycle, allocations, and transfers of enterprise assets.</p>
+            <h1 className="text-2xl font-extrabold tracking-tight text-foreground">Asset Catalog</h1>
+            <p className="text-xs text-slate-450 dark:text-slate-450 mt-1">Lifecycle control, allocation logs, and department transfers.</p>
           </div>
           <button 
             onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-md hover:bg-slate-800 transition-colors text-sm font-semibold shadow-sm"
+            className="apple-btn apple-btn-primary"
           >
             <Plus className="h-4 w-4" />
             Add Asset
@@ -267,17 +269,18 @@ export default function AssetsPage() {
         </div>
 
         {/* Search & Filter Matrix */}
-        <div className="bg-white p-5 border border-slate-200 rounded-lg shadow-sm space-y-4">
-          <div className="flex flex-col md:flex-row gap-4">
+        <div className="glass-panel p-5 bg-white/50 dark:bg-[#15181D]/45 space-y-4">
+          <div className="flex flex-col lg:flex-row gap-4">
+            
             {/* Search Input */}
             <div className="relative flex-1">
               <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
               <input 
                 type="text"
-                placeholder="Search by Asset Tag, Serial Number, Name, Location or Vendor..."
+                placeholder="Search asset tags, names, serial numbers, locations..."
                 value={search}
                 onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                className="glass-input pl-10"
               />
             </div>
             
@@ -287,9 +290,9 @@ export default function AssetsPage() {
               <select 
                 value={statusFilter}
                 onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-                className="px-3 py-2 border border-slate-300 rounded-md text-sm bg-white focus:outline-none"
+                className="glass-input py-2 px-3 bg-white/70 dark:bg-[#15181D]/70 max-w-[150px]"
               >
-                <option value="">All Statuses</option>
+                <option value="">Statuses</option>
                 <option value="AVAILABLE">Available</option>
                 <option value="ALLOCATED">Allocated</option>
                 <option value="RESERVED">Reserved</option>
@@ -302,9 +305,9 @@ export default function AssetsPage() {
               <select 
                 value={deptFilter}
                 onChange={(e) => { setDeptFilter(e.target.value); setPage(1); }}
-                className="px-3 py-2 border border-slate-300 rounded-md text-sm bg-white focus:outline-none"
+                className="glass-input py-2 px-3 bg-white/70 dark:bg-[#15181D]/70 max-w-[150px]"
               >
-                <option value="">All Departments</option>
+                <option value="">Departments</option>
                 {departments.map(d => (
                   <option key={d.id} value={d.id}>{d.name}</option>
                 ))}
@@ -314,9 +317,9 @@ export default function AssetsPage() {
               <select 
                 value={catFilter}
                 onChange={(e) => { setCatFilter(e.target.value); setPage(1); }}
-                className="px-3 py-2 border border-slate-300 rounded-md text-sm bg-white focus:outline-none"
+                className="glass-input py-2 px-3 bg-white/70 dark:bg-[#15181D]/70 max-w-[150px]"
               >
-                <option value="">All Categories</option>
+                <option value="">Categories</option>
                 {categories.map(c => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
@@ -326,91 +329,93 @@ export default function AssetsPage() {
         </div>
 
         {/* Data Table */}
-        <div className="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
+        <div className="luxury-table-container">
           {isLoading ? (
-            <div className="p-8 text-center text-slate-500">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900 mx-auto mb-4"></div>
-              Loading assets...
+            <div className="p-16 text-center text-slate-450">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#007AFF] mx-auto mb-4"></div>
+              Refreshing catalog...
             </div>
           ) : error ? (
-            <div className="p-8 text-center text-red-600 bg-red-50 flex items-center justify-center gap-2">
-              <AlertCircle className="h-5 w-5" />
-              <span>{error}</span>
+            <div className="p-16 text-center text-red-650 bg-red-500/5 flex flex-col items-center justify-center gap-2">
+              <AlertCircle className="h-8 w-8 text-red-500 mb-2" />
+              <p className="font-extrabold text-sm">{error}</p>
             </div>
           ) : assets.length === 0 ? (
-            <div className="p-12 text-center text-slate-400">
-              No assets registered matching criteria.
+            <div className="p-20 text-center flex flex-col items-center justify-center">
+              <Package className="h-12 w-12 text-slate-350 dark:text-zinc-700 mb-3" />
+              <p className="text-sm font-extrabold text-slate-500">No assets found</p>
+              <p className="text-xs text-slate-400 mt-1 max-w-[280px]">Try relaxing your search terms or filters above.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-200">
-                <thead className="bg-slate-50">
+              <table className="luxury-table">
+                <thead>
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Asset Tag</th>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Location</th>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Condition</th>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Actions</th>
+                    <th>Asset Tag</th>
+                    <th>Name</th>
+                    <th>Location</th>
+                    <th>Condition</th>
+                    <th>Status</th>
+                    <th className="text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-slate-200">
+                <tbody>
                   {assets.map((asset) => (
-                    <tr key={asset.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900">
+                    <tr key={asset.id}>
+                      <td className="font-extrabold text-foreground">
                         {asset.assetTag}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <td>
                         <div>
-                          <div className="font-semibold text-slate-900">{asset.name}</div>
-                          <div className="text-xs text-slate-400">SN: {asset.serialNumber}</div>
+                          <div className="font-bold text-foreground">{asset.name}</div>
+                          <div className="text-[10px] text-slate-400 mt-0.5">SN: {asset.serialNumber}</div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-semibold">
+                      <td className="font-semibold text-slate-500 dark:text-slate-400">
                         {asset.location}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <span className="px-2.5 py-0.5 rounded border border-slate-200 text-xs font-semibold text-slate-600">
+                      <td>
+                        <span className="px-2.5 py-0.5 rounded-lg border border-slate-200/50 dark:border-white/5 bg-slate-50 dark:bg-white/5 text-[10px] font-bold text-slate-500 dark:text-slate-400">
                           {asset.condition}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <span className={`px-2.5 py-0.5 rounded border text-xs font-bold ${getStatusBadgeClass(asset.status)}`}>
-                          {asset.status}
+                      <td>
+                        <span className={`status-pill ${getStatusPillClass(asset.status)}`}>
+                          {asset.status.replace("_", " ")}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                      <td className="text-right space-x-1.5 whitespace-nowrap">
                         <Link 
                           href={`/assets/${asset.id}`}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 text-xs text-slate-700 bg-slate-100 hover:bg-slate-200 rounded border border-slate-200 transition-colors font-bold"
+                          className="apple-btn apple-btn-secondary py-1.5 px-3"
                         >
-                          <Info className="h-3 w-3" />
+                          <Info className="h-3.5 w-3.5" />
                           Details
                         </Link>
                         {asset.status === "AVAILABLE" && (
                           <button
                             onClick={() => { setSelectedAsset(asset); setIsAllocateModalOpen(true); }}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded transition-colors font-bold"
+                            className="apple-btn apple-btn-primary py-1.5 px-3"
                           >
-                            <UserCheck className="h-3 w-3" />
+                            <UserCheck className="h-3.5 w-3.5" />
                             Allocate
                           </button>
                         )}
                         {["AVAILABLE", "ALLOCATED"].includes(asset.status) && (
                           <button
                             onClick={() => { setSelectedAsset(asset); setIsTransferModalOpen(true); }}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded transition-colors font-bold"
+                            className="apple-btn apple-btn-secondary py-1.5 px-3 text-amber-500 border-amber-500/10 hover:bg-amber-500/5"
                           >
-                            <ArrowRightLeft className="h-3 w-3" />
+                            <ArrowRightLeft className="h-3.5 w-3.5" />
                             Transfer
                           </button>
                         )}
                         <button
                           onClick={() => handleDeleteAsset(asset.id)}
                           disabled={asset.status === "ALLOCATED"}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 text-xs text-red-600 hover:bg-red-50 disabled:opacity-40 disabled:hover:bg-transparent rounded transition-colors font-bold"
+                          className="apple-btn apple-btn-secondary py-1.5 px-3 text-red-500 border-red-500/10 hover:bg-red-500/5 disabled:opacity-30 disabled:hover:bg-transparent"
                         >
-                          <Trash2 className="h-3 w-3" />
+                          <Trash2 className="h-3.5 w-3.5" />
                           Decommission
                         </button>
                       </td>
@@ -422,22 +427,22 @@ export default function AssetsPage() {
           )}
 
           {/* Pagination Matrix */}
-          <div className="bg-slate-50 border-t border-slate-200 px-6 py-4 flex items-center justify-between">
-            <div className="text-sm text-slate-500 font-medium">
-              Showing <span className="font-bold text-slate-800">{assets.length}</span> of <span className="font-bold text-slate-800">{total}</span> assets
+          <div className="bg-slate-50/50 dark:bg-[#15181D]/30 border-t border-slate-200/20 dark:border-white/5 px-6 py-4 flex items-center justify-between">
+            <div className="text-xs text-slate-450 dark:text-slate-450 font-bold">
+              Showing <span className="text-foreground">{assets.length}</span> of <span className="text-foreground">{total}</span> items
             </div>
             <div className="flex gap-2">
               <button
                 onClick={() => setPage(p => Math.max(p - 1, 1))}
                 disabled={page === 1}
-                className="p-2 border border-slate-300 bg-white hover:bg-slate-100 rounded-md disabled:opacity-40 transition-colors"
+                className="apple-btn apple-btn-secondary p-2 disabled:opacity-30"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
               <button
                 onClick={() => setPage(p => (p * limit < total ? p + 1 : p))}
                 disabled={page * limit >= total}
-                className="p-2 border border-slate-300 bg-white hover:bg-slate-100 rounded-md disabled:opacity-40 transition-colors"
+                className="apple-btn apple-btn-secondary p-2 disabled:opacity-30"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
@@ -447,48 +452,69 @@ export default function AssetsPage() {
 
         {/* MODAL 1: ALLOCATE ASSET */}
         {isAllocateModalOpen && selectedAsset && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
-            <div className="bg-white border border-slate-200 rounded-lg shadow-xl w-full max-w-md p-6">
+          <div className="fixed inset-0 z-55 flex items-center justify-center bg-black/40 backdrop-blur-md animate-page-enter">
+            <div className="bg-white dark:bg-[#15181D] border border-slate-200/50 dark:border-white/5 rounded-3xl shadow-2xl w-full max-w-md p-6 relative">
               <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-bold text-slate-900">Allocate Asset</h3>
-                <button onClick={() => setIsAllocateModalOpen(false)} className="text-slate-400 hover:text-slate-600">Cancel</button>
-              </div>
-              <p className="text-sm text-slate-500 mb-4">Allocating asset: <span className="font-semibold text-slate-800">{selectedAsset.name} ({selectedAsset.assetTag})</span></p>
-
-              {modalError && <div className="p-3 mb-4 text-xs text-red-600 bg-red-50 border border-red-200 rounded">{modalError}</div>}
-
-              <form onSubmit={handleAllocate} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Employee ID (UUID)</label>
+                  {/* macOS dots visual */}
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <span className="window-dot dot-close" />
+                    <span className="window-dot dot-minimize" />
+                    <span className="window-dot dot-maximize" />
+                  </div>
+                  <h3 className="text-lg font-extrabold text-foreground">Allocate Asset</h3>
+                </div>
+                <button 
+                  onClick={() => setIsAllocateModalOpen(false)} 
+                  className="p-1 text-slate-400 hover:text-foreground rounded-lg hover:bg-slate-100 dark:hover:bg-white/5"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              
+              <p className="text-xs text-slate-500 mb-6 font-semibold">
+                Resource: <span className="text-foreground font-extrabold">{selectedAsset.name} ({selectedAsset.assetTag})</span>
+              </p>
+
+              {modalError && (
+                <div className="p-3 mb-4 text-xs text-red-650 bg-red-500/10 border border-red-500/15 rounded-2xl font-bold flex items-center gap-2">
+                  <AlertCircle className="h-4.5 w-4.5 text-red-500 shrink-0" />
+                  {modalError}
+                </div>
+              )}
+
+              <form onSubmit={handleAllocate} className="space-y-5">
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Employee ID (UUID)</label>
                   <input 
                     type="text"
                     required
                     value={employeeId}
                     onChange={(e) => setEmployeeId(e.target.value)}
                     placeholder="e.g. 123e4567-e89b-12d3-a456-426614174000"
-                    className="w-full p-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none"
+                    className="glass-input"
                   />
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Expected Return Date</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Expected Return Date</label>
                   <input 
                     type="date"
                     required
                     value={expectedReturnDate}
                     onChange={(e) => setExpectedReturnDate(e.target.value)}
-                    className="w-full p-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none"
+                    className="glass-input"
                   />
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Remarks</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Remarks</label>
                   <textarea 
                     value={remarks}
                     onChange={(e) => setRemarks(e.target.value)}
-                    className="w-full p-2 border border-slate-300 rounded-md text-sm h-20 resize-none focus:ring-2 focus:ring-slate-900 focus:outline-none"
+                    className="glass-input h-20 resize-none"
                     placeholder="Provide additional details..."
                   />
                 </div>
-                <button type="submit" className="w-full py-2 bg-slate-900 text-white hover:bg-slate-800 rounded-md text-sm font-semibold">
+                <button type="submit" className="w-full apple-btn apple-btn-primary py-3">
                   Confirm Allocation
                 </button>
               </form>
@@ -498,24 +524,44 @@ export default function AssetsPage() {
 
         {/* MODAL 2: REQUEST TRANSFER */}
         {isTransferModalOpen && selectedAsset && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
-            <div className="bg-white border border-slate-200 rounded-lg shadow-xl w-full max-w-md p-6">
+          <div className="fixed inset-0 z-55 flex items-center justify-center bg-black/40 backdrop-blur-md animate-page-enter">
+            <div className="bg-white dark:bg-[#15181D] border border-slate-200/50 dark:border-white/5 rounded-3xl shadow-2xl w-full max-w-md p-6 relative">
               <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-bold text-slate-900">Request Asset Transfer</h3>
-                <button onClick={() => setIsTransferModalOpen(false)} className="text-slate-400 hover:text-slate-600">Cancel</button>
-              </div>
-              <p className="text-sm text-slate-500 mb-4">Transferring: <span className="font-semibold text-slate-800">{selectedAsset.name} ({selectedAsset.assetTag})</span></p>
-
-              {modalError && <div className="p-3 mb-4 text-xs text-red-600 bg-red-50 border border-red-200 rounded">{modalError}</div>}
-
-              <form onSubmit={handleTransfer} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Target Department</label>
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <span className="window-dot dot-close" />
+                    <span className="window-dot dot-minimize" />
+                    <span className="window-dot dot-maximize" />
+                  </div>
+                  <h3 className="text-lg font-extrabold text-foreground">Request Asset Transfer</h3>
+                </div>
+                <button 
+                  onClick={() => setIsTransferModalOpen(false)} 
+                  className="p-1 text-slate-400 hover:text-foreground rounded-lg hover:bg-slate-100 dark:hover:bg-white/5"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <p className="text-xs text-slate-500 mb-6 font-semibold">
+                Resource: <span className="text-foreground font-extrabold">{selectedAsset.name} ({selectedAsset.assetTag})</span>
+              </p>
+
+              {modalError && (
+                <div className="p-3 mb-4 text-xs text-red-650 bg-red-500/10 border border-red-500/15 rounded-2xl font-bold flex items-center gap-2">
+                  <AlertCircle className="h-4.5 w-4.5 text-red-500 shrink-0" />
+                  {modalError}
+                </div>
+              )}
+
+              <form onSubmit={handleTransfer} className="space-y-5">
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Target Department</label>
                   <select 
                     required
                     value={toDepartment}
                     onChange={(e) => setToDepartment(e.target.value)}
-                    className="w-full p-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none bg-white"
+                    className="glass-input bg-white/95 dark:bg-[#15181D]/95"
                   >
                     <option value="">Select Target Department...</option>
                     {departments.map(d => (
@@ -523,17 +569,17 @@ export default function AssetsPage() {
                     ))}
                   </select>
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Transfer Reason</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Transfer Reason</label>
                   <textarea 
                     required
                     value={transferReason}
                     onChange={(e) => setTransferReason(e.target.value)}
-                    className="w-full p-2 border border-slate-300 rounded-md text-sm h-24 resize-none focus:ring-2 focus:ring-slate-900 focus:outline-none"
+                    className="glass-input h-24 resize-none"
                     placeholder="Why is this transfer necessary? Minimum 5 characters..."
                   />
                 </div>
-                <button type="submit" className="w-full py-2 bg-slate-900 text-white hover:bg-slate-800 rounded-md text-sm font-semibold">
+                <button type="submit" className="w-full apple-btn apple-btn-primary py-3">
                   Submit Transfer Request
                 </button>
               </form>
@@ -543,119 +589,136 @@ export default function AssetsPage() {
 
         {/* MODAL 3: ADD ASSET */}
         {isAddModalOpen && (
-          <div className="fixed inset-0 z-55 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm overflow-y-auto">
-            <div className="bg-white border border-slate-200 rounded-lg shadow-xl w-full max-w-2xl p-6 my-8">
+          <div className="fixed inset-0 z-55 flex items-center justify-center bg-black/40 backdrop-blur-md overflow-y-auto animate-page-enter">
+            <div className="bg-white dark:bg-[#15181D] border border-slate-200/50 dark:border-white/5 rounded-3xl shadow-2xl w-full max-w-2xl p-6 my-8 relative">
               <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-bold text-slate-900">Add Enterprise Asset</h3>
-                <button onClick={() => setIsAddModalOpen(false)} className="text-slate-400 hover:text-slate-600">Cancel</button>
+                <div>
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <span className="window-dot dot-close" />
+                    <span className="window-dot dot-minimize" />
+                    <span className="window-dot dot-maximize" />
+                  </div>
+                  <h3 className="text-lg font-extrabold text-foreground">Register Asset</h3>
+                </div>
+                <button 
+                  onClick={() => setIsAddModalOpen(false)} 
+                  className="p-1 text-slate-400 hover:text-foreground rounded-lg hover:bg-slate-100 dark:hover:bg-white/5"
+                >
+                  <X className="h-5 w-5" />
+                </button>
               </div>
 
-              {modalError && <div className="p-3 mb-4 text-xs text-red-600 bg-red-50 border border-red-200 rounded">{modalError}</div>}
+              {modalError && (
+                <div className="p-3 mb-4 text-xs text-red-650 bg-red-500/10 border border-red-500/15 rounded-2xl font-bold flex items-center gap-2">
+                  <AlertCircle className="h-4.5 w-4.5 text-red-500 shrink-0" />
+                  {modalError}
+                </div>
+              )}
 
-              <form onSubmit={handleCreateAsset} className="space-y-4">
+              <form onSubmit={handleCreateAsset} className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Asset Tag</label>
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Asset Tag</label>
                     <input 
                       type="text" required placeholder="e.g. AST-LAP-009"
                       value={newAsset.assetTag}
                       onChange={(e) => setNewAsset({...newAsset, assetTag: e.target.value})}
-                      className="w-full p-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                      className="glass-input"
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Serial Number</label>
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Serial Number</label>
                     <input 
                       type="text" required placeholder="e.g. SN-88371628A"
                       value={newAsset.serialNumber}
                       onChange={(e) => setNewAsset({...newAsset, serialNumber: e.target.value})}
-                      className="w-full p-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                      className="glass-input"
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Asset Name</label>
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Asset Name</label>
                     <input 
                       type="text" required placeholder="e.g. Macbook Pro 16"
                       value={newAsset.name}
                       onChange={(e) => setNewAsset({...newAsset, name: e.target.value})}
-                      className="w-full p-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                      className="glass-input"
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Category</label>
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Category</label>
                     <select 
                       required
                       value={newAsset.categoryId}
                       onChange={(e) => setNewAsset({...newAsset, categoryId: e.target.value})}
-                      className="w-full p-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 bg-white"
+                      className="glass-input bg-white/95 dark:bg-[#15181D]/95"
                     >
                       <option value="">Select Category...</option>
                       {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Department</label>
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Department</label>
                     <select 
                       required
                       value={newAsset.departmentId}
                       onChange={(e) => setNewAsset({...newAsset, departmentId: e.target.value})}
-                      className="w-full p-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 bg-white"
+                      className="glass-input bg-white/95 dark:bg-[#15181D]/95"
                     >
                       <option value="">Select Department...</option>
                       {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
                     </select>
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Purchase Date</label>
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Purchase Date</label>
                     <input 
                       type="date" required
                       value={newAsset.purchaseDate}
                       onChange={(e) => setNewAsset({...newAsset, purchaseDate: e.target.value})}
-                      className="w-full p-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                      className="glass-input"
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Purchase Cost (USD)</label>
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Purchase Cost (USD)</label>
                     <input 
                       type="number" required placeholder="2400"
                       value={newAsset.purchaseCost || ""}
                       onChange={(e) => setNewAsset({...newAsset, purchaseCost: Number(e.target.value)})}
-                      className="w-full p-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                      className="glass-input"
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Vendor</label>
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Vendor</label>
                     <input 
                       type="text" required placeholder="Apple Store"
                       value={newAsset.vendor}
                       onChange={(e) => setNewAsset({...newAsset, vendor: e.target.value})}
-                      className="w-full p-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                      className="glass-input"
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Warranty Expiry</label>
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Warranty Expiry</label>
                     <input 
                       type="date"
                       value={newAsset.warrantyExpiry}
                       onChange={(e) => setNewAsset({...newAsset, warrantyExpiry: e.target.value})}
-                      className="w-full p-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                      className="glass-input"
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Physical Location</label>
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Physical Location</label>
                     <input 
                       type="text" required placeholder="Headquarters Room 4A"
                       value={newAsset.location}
                       onChange={(e) => setNewAsset({...newAsset, location: e.target.value})}
-                      className="w-full p-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                      className="glass-input"
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Condition</label>
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Condition</label>
                     <select
                       value={newAsset.condition}
                       onChange={(e) => setNewAsset({...newAsset, condition: e.target.value})}
-                      className="w-full p-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 bg-white"
+                      className="glass-input bg-white/95 dark:bg-[#15181D]/95"
                     >
                       <option value="NEW">New</option>
                       <option value="GOOD">Good</option>
@@ -663,17 +726,17 @@ export default function AssetsPage() {
                       <option value="POOR">Poor</option>
                     </select>
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Image URL</label>
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Image URL</label>
                     <input 
                       type="text" placeholder="https://example.com/laptop.jpg"
                       value={newAsset.image}
                       onChange={(e) => setNewAsset({...newAsset, image: e.target.value})}
-                      className="w-full p-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                      className="glass-input"
                     />
                   </div>
                 </div>
-                <button type="submit" className="w-full py-2.5 bg-slate-900 text-white hover:bg-slate-800 rounded-md text-sm font-semibold transition-colors mt-2 shadow-sm">
+                <button type="submit" className="w-full apple-btn apple-btn-primary py-3">
                   Register Asset & Generate QR Code
                 </button>
               </form>

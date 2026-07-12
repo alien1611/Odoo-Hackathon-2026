@@ -85,16 +85,16 @@ export default function NotificationsPage() {
     }
   };
 
-  const getNotificationColor = (type: string) => {
+  const getNotificationPill = (type: string) => {
     switch (type.toUpperCase()) {
       case "SYSTEM":
-        return "bg-slate-100 text-slate-800 border-slate-200";
+        return "bg-slate-100 text-slate-500 border-slate-205/50";
       case "ALERT":
       case "CRITICAL":
-        return "bg-red-50 text-red-700 border-red-200";
+        return "status-pill-lost";
       case "INFO":
       default:
-        return "bg-blue-50 text-blue-700 border-blue-200";
+        return "status-pill-allocated";
     }
   };
 
@@ -102,20 +102,21 @@ export default function NotificationsPage() {
 
   return (
     <Layout>
-      <div className="space-y-6 max-w-4xl mx-auto">
+      <div className="space-y-8 max-w-4xl mx-auto animate-page-enter">
+        
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+            <h1 className="text-2xl font-extrabold tracking-tight text-foreground flex items-center gap-2.5">
               <BellRing className="h-6 w-6 text-slate-400" />
-              Notifications Inbox
+              Notifications
             </h1>
-            <p className="text-sm text-slate-500 mt-1">Review alerts, audit notifications, and system warnings</p>
+            <p className="text-xs text-slate-450 dark:text-slate-450 mt-1">Review alerts, audit verifications, and system actions.</p>
           </div>
           {unreadCount > 0 && (
             <button
               onClick={handleMarkAllAsRead}
-              className="flex items-center gap-1.5 px-3 py-2 border border-slate-250 rounded-md hover:bg-slate-50 text-xs font-bold text-slate-700 transition-colors"
+              className="apple-btn apple-btn-secondary py-2 px-4 text-xs font-bold"
             >
               <Check className="h-4 w-4" />
               Mark all as read
@@ -125,46 +126,47 @@ export default function NotificationsPage() {
 
         {/* Content list */}
         {isLoading ? (
-          <div className="flex justify-center items-center py-20 bg-white border border-slate-200 rounded-lg">
-            <Loader2 className="h-8 w-8 text-slate-400 animate-spin" />
+          <div className="p-16 text-center text-slate-450">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#007AFF] mx-auto mb-4"></div>
+            Refreshing inbox...
           </div>
         ) : error ? (
-          <div className="bg-white border border-slate-200 rounded-lg py-16 px-4 text-center">
-            <p className="text-red-500 font-medium">{error}</p>
+          <div className="p-16 text-center text-red-650 bg-red-500/5 rounded-3xl border border-red-500/10">
+            <p className="font-extrabold text-sm">{error}</p>
           </div>
         ) : notifications.length === 0 ? (
-          <div className="bg-white border border-slate-200 rounded-lg py-16 px-4 text-center">
-            <Bell className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-            <h3 className="text-base font-bold text-slate-800">Inbox is Empty</h3>
-            <p className="text-sm text-slate-500 mt-1">You do not have any notification alerts at this time.</p>
+          <div className="p-20 text-center flex flex-col items-center justify-center bg-white dark:bg-[#15181D] rounded-3xl border border-slate-250/20 dark:border-white/5">
+            <Bell className="h-12 w-12 text-slate-350 dark:text-zinc-700 mb-3" />
+            <p className="text-sm font-extrabold text-slate-500">Inbox is empty</p>
+            <p className="text-xs text-slate-450 mt-1 max-w-[280px]">You have no active system notifications at this time.</p>
           </div>
         ) : (
-          <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm divide-y divide-slate-100">
+          <div className="luxury-table-container divide-y divide-slate-250/20 dark:divide-white/5">
             {notifications.map((n) => (
               <div 
                 key={n.id} 
-                className={`p-5 flex items-start gap-4 hover:bg-slate-50 transition-colors ${
-                  !n.read ? "bg-slate-50/50" : ""
+                className={`p-6 flex items-start gap-4 hover:bg-slate-50/50 dark:hover:bg-white/1 transition-all duration-200 ${
+                  !n.read ? "bg-slate-50/30 dark:bg-white/1" : ""
                 }`}
               >
                 {/* Icon wrapper based on status */}
-                <div className={`p-2.5 rounded-lg border ${getNotificationColor(n.type)} shrink-0`}>
-                  {!n.read ? <Mail className="h-5 w-5 animate-pulse" /> : <MailOpen className="h-5 w-5" />}
+                <div className={`p-2.5 rounded-xl border ${getNotificationPill(n.type)} shrink-0`}>
+                  {!n.read ? <Mail className="h-4.5 w-4.5 animate-pulse" /> : <MailOpen className="h-4.5 w-4.5" />}
                 </div>
 
                 {/* Text content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h4 className={`text-sm ${!n.read ? "font-bold text-slate-900" : "font-medium text-slate-700"}`}>
+                    <h4 className={`text-sm ${!n.read ? "font-extrabold text-foreground" : "font-semibold text-slate-650 dark:text-slate-400"}`}>
                       {n.title}
                     </h4>
                     {!n.read && (
-                      <span className="h-2 w-2 rounded-full bg-blue-650 shrink-0" />
+                      <span className="h-2 w-2 rounded-full bg-[#007AFF] shrink-0" />
                     )}
                   </div>
-                  <p className="text-sm text-slate-500 mt-1">{n.message}</p>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400 mt-3">
-                    <Calendar className="h-3 w-3" />
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed font-semibold">{n.message}</p>
+                  <span className="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase tracking-wider text-slate-400 mt-4">
+                    <Calendar className="h-3.5 w-3.5" />
                     {new Date(n.createdAt).toLocaleString(undefined, {
                       dateStyle: "medium",
                       timeStyle: "short"
@@ -173,11 +175,11 @@ export default function NotificationsPage() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-1.5 shrink-0 self-center">
+                <div className="flex items-center gap-1 shrink-0 self-center">
                   {!n.read && (
                     <button
                       onClick={() => handleMarkAsRead(n.id)}
-                      className="p-1.5 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-md transition-colors"
+                      className="p-2 text-slate-400 hover:text-foreground rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-all"
                       title="Mark as read"
                     >
                       <Check className="h-4 w-4" />
@@ -185,7 +187,7 @@ export default function NotificationsPage() {
                   )}
                   <button
                     onClick={() => handleDelete(n.id)}
-                    className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                    className="p-2 text-red-500 hover:bg-red-500/5 rounded-lg transition-all"
                     title="Delete notification"
                   >
                     <Trash2 className="h-4 w-4" />

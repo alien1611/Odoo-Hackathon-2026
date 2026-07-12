@@ -7,14 +7,7 @@ import { api } from "@/lib/axios";
 import { 
   ArrowLeft, 
   ChevronRight, 
-  Layers, 
-  Clock, 
   ClipboardCheck, 
-  Check, 
-  AlertTriangle, 
-  X,
-  Plus,
-  Search,
   AlertCircle
 } from "lucide-react";
 import Link from "next/link";
@@ -115,12 +108,12 @@ export default function AuditDetailsPage({ params }: { params: Promise<{ id: str
   if (isLoading) {
     return (
       <Layout>
-        <div className="animate-pulse space-y-6">
-          <div className="h-6 w-32 bg-slate-200 rounded"></div>
-          <div className="h-48 bg-white border border-slate-200 rounded-lg"></div>
+        <div className="animate-pulse space-y-8">
+          <div className="h-6 w-32 bg-slate-200 dark:bg-zinc-800 rounded-xl"></div>
+          <div className="h-48 bg-slate-250 dark:bg-zinc-800 rounded-3xl"></div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-2 h-96 bg-white border border-slate-200 rounded-lg"></div>
-            <div className="h-96 bg-white border border-slate-200 rounded-lg"></div>
+            <div className="md:col-span-2 h-96 bg-slate-250 dark:bg-zinc-800 rounded-3xl"></div>
+            <div className="h-96 bg-slate-250 dark:bg-zinc-800 rounded-3xl"></div>
           </div>
         </div>
       </Layout>
@@ -130,11 +123,11 @@ export default function AuditDetailsPage({ params }: { params: Promise<{ id: str
   if (error || !cycle) {
     return (
       <Layout>
-        <div className="max-w-md mx-auto mt-10 p-6 bg-white border border-slate-200 rounded-lg text-center shadow-sm">
+        <div className="max-w-md mx-auto mt-12 p-8 text-center bg-white dark:bg-[#15181D] rounded-3xl shadow-2xl border border-slate-250/20 dark:border-white/5 animate-page-enter">
           <AlertCircle className="h-10 w-10 text-red-500 mx-auto mb-3" />
-          <h3 className="text-lg font-bold text-slate-900 mb-2">Error</h3>
-          <p className="text-slate-500 text-sm mb-4">{error || "Audit details not found"}</p>
-          <Link href="/audits" className="px-4 py-2 bg-slate-900 text-white rounded-md hover:bg-slate-800 text-sm font-semibold">
+          <h3 className="text-lg font-extrabold text-foreground mb-2">Error</h3>
+          <p className="text-slate-500 dark:text-slate-400 text-xs mb-6">{error || "Audit details not found"}</p>
+          <Link href="/audits" className="apple-btn apple-btn-primary px-6 py-2.5">
             Back to Audits
           </Link>
         </div>
@@ -144,101 +137,105 @@ export default function AuditDetailsPage({ params }: { params: Promise<{ id: str
 
   const getRecordStatusClass = (s: string) => {
     switch (s) {
-      case "VERIFIED": return "bg-emerald-50 text-emerald-700 border-emerald-200";
-      case "DAMAGED": return "bg-amber-50 text-amber-700 border-amber-200";
-      case "MISSING": return "bg-rose-50 text-rose-700 border-rose-200";
-      default: return "bg-slate-50 text-slate-700 border-slate-200";
+      case "VERIFIED": return "status-pill-available";
+      case "DAMAGED": return "status-pill-maintenance";
+      case "MISSING": return "status-pill-lost";
+      default: return "bg-slate-100 text-slate-700 border-slate-200";
     }
   };
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-8 animate-page-enter">
+        
         {/* Navigation Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-slate-500 font-semibold">
-          <Link href="/audits" className="hover:text-slate-900 flex items-center gap-1">
+        <div className="flex items-center gap-2.5 text-xs font-bold text-slate-455 dark:text-slate-500">
+          <Link href="/audits" className="hover:text-foreground flex items-center gap-1">
             <ArrowLeft className="h-4 w-4" />
-            Audit Cycles
+            Audits
           </Link>
           <ChevronRight className="h-4 w-4" />
-          <span className="text-slate-900 font-bold">{cycle.name}</span>
+          <span className="text-foreground">{cycle.name}</span>
         </div>
 
         {/* Master Info Panel */}
-        <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-6 space-y-3">
+        <div className="premium-card p-6 space-y-3">
           <div className="flex justify-between items-start gap-4">
-            <h1 className="text-xl font-bold text-slate-900">{cycle.name}</h1>
-            <span className="px-2.5 py-0.5 rounded border text-xs font-bold bg-blue-50 text-blue-700 border-blue-200">
+            <h1 className="text-xl font-extrabold tracking-tight text-foreground">{cycle.name}</h1>
+            <span className="status-pill status-pill-allocated bg-blue-500/10 text-blue-505 border-blue-500/10">
               {cycle.status}
             </span>
           </div>
-          <p className="text-sm font-semibold text-slate-400">Scope: <span className="text-slate-700">{cycle.scope}</span></p>
-          <div className="flex gap-4 text-xs font-semibold text-slate-400">
-            <span>Start Date: {new Date(cycle.startDate).toLocaleDateString()}</span>
-            <span>End Date: {new Date(cycle.endDate).toLocaleDateString()}</span>
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold leading-relaxed">
+            Scope: <span className="text-foreground font-bold">{cycle.scope}</span>
+          </p>
+          <div className="flex gap-4 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+            <span>Start: {new Date(cycle.startDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+            <span>End: {new Date(cycle.endDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
           </div>
         </div>
 
         {/* Discrepancy report summary card */}
         {summary && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Audited</p>
-              <h4 className="text-2xl font-bold text-slate-900 mt-1">{summary.totalVerified} Assets</h4>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="premium-card p-5 bg-gradient-to-tr from-white/90 to-slate-500/5 dark:from-[#15181D] dark:to-slate-500/10">
+              <p className="text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-widest">Total Audited</p>
+              <h4 className="text-2xl font-extrabold tracking-tight mt-2 text-foreground">{summary.totalVerified} Assets</h4>
             </div>
-            <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-emerald-600">Verified & Intact</p>
-              <h4 className="text-2xl font-bold text-emerald-600 mt-1">{summary.verifiedCount} Assets</h4>
+            <div className="premium-card p-5 bg-gradient-to-tr from-white/90 to-emerald-500/5 dark:from-[#15181D] dark:to-emerald-500/10">
+              <p className="text-[10px] font-extrabold text-emerald-505 uppercase tracking-widest">Verified & Intact</p>
+              <h4 className="text-2xl font-extrabold tracking-tight mt-2 text-emerald-550 dark:text-emerald-400">{summary.verifiedCount} Assets</h4>
             </div>
-            <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-amber-600">Damaged Assets</p>
-              <h4 className="text-2xl font-bold text-amber-600 mt-1">{summary.damagedCount} Assets</h4>
+            <div className="premium-card p-5 bg-gradient-to-tr from-white/90 to-amber-500/5 dark:from-[#15181D] dark:to-amber-500/10">
+              <p className="text-[10px] font-extrabold text-amber-550 uppercase tracking-widest">Damaged / Needs Repair</p>
+              <h4 className="text-2xl font-extrabold tracking-tight mt-2 text-amber-550 dark:text-amber-400">{summary.damagedCount} Assets</h4>
             </div>
-            <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-red-650">Missing Assets</p>
-              <h4 className="text-2xl font-bold text-red-600 mt-1">{summary.missingCount} Assets</h4>
+            <div className="premium-card p-5 bg-gradient-to-tr from-white/90 to-red-500/5 dark:from-[#15181D] dark:to-red-500/10">
+              <p className="text-[10px] font-extrabold text-red-500 uppercase tracking-widest">Missing / Lost</p>
+              <h4 className="text-2xl font-extrabold tracking-tight mt-2 text-red-650 dark:text-red-400">{summary.missingCount} Assets</h4>
             </div>
           </div>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
           {/* Audit Verification Log list */}
-          <div className="lg:col-span-2 bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden flex flex-col justify-between">
-            <div className="px-6 py-4 border-b border-slate-100">
-              <h3 className="font-bold text-slate-900">Audit Verification Records</h3>
+          <div className="lg:col-span-2 luxury-table-container">
+            <div className="px-6 py-4 border-b border-slate-200/20 dark:border-white/5 bg-slate-50/50 dark:bg-white/1">
+              <h3 className="font-extrabold text-xs uppercase tracking-widest text-slate-450">Verification Log</h3>
             </div>
 
             {records.length === 0 ? (
-              <p className="p-8 text-center text-slate-400">No assets verified in this cycle yet.</p>
+              <p className="p-16 text-center text-slate-450 italic font-semibold">No assets verified in this cycle yet.</p>
             ) : (
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-slate-200">
-                  <thead className="bg-slate-50">
+                <table className="luxury-table">
+                  <thead>
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Asset</th>
-                      <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Auditor</th>
-                      <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Remarks</th>
+                      <th>Asset</th>
+                      <th>Auditor</th>
+                      <th>Status</th>
+                      <th>Remarks</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-slate-200">
+                  <tbody>
                     {records.map((r) => (
-                      <tr key={r.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900">
+                      <tr key={r.id}>
+                        <td className="font-extrabold text-foreground">
                           <div>
                             <div>{r.asset?.name}</div>
-                            <div className="text-xs text-slate-400">Tag: {r.asset?.assetTag}</div>
+                            <div className="text-[10px] text-slate-400 mt-0.5">Tag: {r.asset?.assetTag}</div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 font-semibold">
+                        <td className="font-semibold text-slate-500 dark:text-slate-400">
                           {r.verifier?.name}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <span className={`px-2 py-0.5 rounded border text-[10px] font-bold ${getRecordStatusClass(r.verificationStatus)}`}>
+                        <td>
+                          <span className={`status-pill ${getRecordStatusClass(r.verificationStatus)}`}>
                             {r.verificationStatus}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-400 font-semibold max-w-xs truncate">
+                        <td className="font-semibold text-slate-400 max-w-xs truncate">
                           {r.remarks || "-"}
                         </td>
                       </tr>
@@ -251,59 +248,67 @@ export default function AuditDetailsPage({ params }: { params: Promise<{ id: str
 
           {/* Audit Verification Form Checklist (Asset Verification Tool) */}
           {["OPEN", "ACTIVE"].includes(cycle.status) ? (
-            <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-6 space-y-4 h-fit">
-              <h3 className="font-bold text-slate-950 flex items-center gap-2 border-b border-slate-100 pb-3">
+            <div className="premium-card p-6 h-fit space-y-4">
+              <h3 className="text-base font-extrabold tracking-tight flex items-center gap-2 border-b border-slate-100/50 dark:border-white/5 pb-3">
                 <ClipboardCheck className="h-5 w-5 text-slate-400" />
-                Auditor Verification Panel
+                Auditor panel
               </h3>
 
-              {actionError && <div className="p-3 text-xs text-red-650 bg-red-50 border border-red-200 rounded">{actionError}</div>}
-              {actionSuccess && <div className="p-3 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded">{actionSuccess}</div>}
+              {actionError && (
+                <div className="p-3 text-xs text-red-650 bg-red-505/10 border border-red-500/15 rounded-2xl font-bold">
+                  {actionError}
+                </div>
+              )}
+              {actionSuccess && (
+                <div className="p-3 text-xs text-emerald-700 bg-emerald-500/10 border border-emerald-500/15 rounded-2xl font-bold">
+                  {actionSuccess}
+                </div>
+              )}
 
-              <form onSubmit={handleVerifyAsset} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Asset ID (UUID)</label>
+              <form onSubmit={handleVerifyAsset} className="space-y-5">
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-extrabold text-slate-455 dark:text-slate-500 uppercase tracking-wider pl-1">Asset ID (UUID)</label>
                   <input 
                     type="text" required placeholder="e.g. 123e4567-e89b-12d3-a456-426614174000"
                     value={assetId}
                     onChange={(e) => setAssetId(e.target.value)}
-                    className="w-full p-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none"
+                    className="glass-input"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Verification Status</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-extrabold text-slate-455 dark:text-slate-500 uppercase tracking-wider pl-1">Verification Status</label>
                   <select 
                     value={verificationStatus}
                     onChange={(e) => setVerificationStatus(e.target.value)}
-                    className="w-full p-2 border border-slate-300 rounded-md text-sm bg-white focus:outline-none"
+                    className="glass-input bg-white/95 dark:bg-[#15181D]/95"
                   >
                     <option value="VERIFIED">Verified & Intact</option>
-                    <option value="DAMAGED">Damaged / Needs repair</option>
+                    <option value="DAMAGED">Damaged / Needs Repair</option>
                     <option value="MISSING">Missing / Flag Lost</option>
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Verification Remarks</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-extrabold text-slate-455 dark:text-slate-500 uppercase tracking-wider pl-1">Verification Remarks</label>
                   <textarea 
                     value={remarks}
                     onChange={(e) => setRemarks(e.target.value)}
-                    className="w-full p-2 border border-slate-300 rounded-md text-sm h-24 resize-none focus:outline-none"
-                    placeholder="Enter visual observation comments..."
+                    className="glass-input h-24 resize-none"
+                    placeholder="Enter observation comments..."
                   />
                 </div>
 
-                <button type="submit" className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded text-sm font-bold shadow-sm transition-colors">
+                <button type="submit" className="w-full apple-btn apple-btn-primary py-3">
                   Log Audit Record
                 </button>
               </form>
             </div>
           ) : (
-            <div className="bg-slate-50 border border-slate-200 rounded-lg p-6 text-center text-slate-400 font-bold space-y-2 h-fit">
-              <ClipboardCheck className="h-8 w-8 mx-auto text-slate-300" />
-              <p className="text-sm">Audit cycle is closed.</p>
-              <p className="text-xs font-normal text-slate-400">Verifications are disabled for this cycle.</p>
+            <div className="premium-card p-6 text-center text-slate-400 font-bold space-y-3 h-fit">
+              <ClipboardCheck className="h-8 w-8 mx-auto text-slate-300 dark:text-zinc-700" />
+              <p className="text-sm">Audit Cycle Closed</p>
+              <p className="text-xs font-semibold text-slate-400 leading-relaxed">Verification records are disabled for closed cycles.</p>
             </div>
           )}
         </div>

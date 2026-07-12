@@ -12,7 +12,12 @@ import {
   Clock, 
   LogIn, 
   ArrowRight,
-  TrendingUp
+  TrendingUp,
+  Sparkles,
+  Calendar,
+  Wrench,
+  ChevronRight,
+  ShieldCheck
 } from "lucide-react";
 import Link from "next/link";
 
@@ -72,23 +77,19 @@ export default function DashboardPage() {
   if (isLoading) {
     return (
       <Layout>
-        <div className="space-y-6">
-          {/* Card Grid Skeleton */}
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 animate-pulse">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-32 bg-white border border-slate-200 rounded-lg p-5">
-                <div className="flex justify-between items-center">
-                  <div className="h-4 w-20 bg-slate-200 rounded"></div>
-                  <div className="h-8 w-8 bg-slate-200 rounded-full"></div>
-                </div>
-                <div className="h-8 w-16 bg-slate-300 rounded mt-4"></div>
-              </div>
-            ))}
+        <div className="space-y-8 animate-pulse">
+          {/* Skeleton Header */}
+          <div className="h-10 w-64 bg-slate-200 dark:bg-zinc-800 rounded-2xl"></div>
+          
+          {/* Asymmetrical Grid Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="md:col-span-2 h-44 bg-slate-200 dark:bg-zinc-800 rounded-3xl"></div>
+            <div className="h-44 bg-slate-200 dark:bg-zinc-800 rounded-3xl"></div>
           </div>
-          {/* Chart/Log Grid Skeleton */}
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 animate-pulse">
-            <div className="lg:col-span-2 h-96 bg-white border border-slate-200 rounded-lg p-5"></div>
-            <div className="h-96 bg-white border border-slate-200 rounded-lg p-5"></div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 h-96 bg-slate-200 dark:bg-zinc-800 rounded-3xl"></div>
+            <div className="h-96 bg-slate-200 dark:bg-zinc-800 rounded-3xl"></div>
           </div>
         </div>
       </Layout>
@@ -98,131 +99,222 @@ export default function DashboardPage() {
   if (error || !stats) {
     return (
       <Layout>
-        <div className="p-8 text-center bg-white border border-slate-200 rounded-lg max-w-md mx-auto mt-10">
-          <p className="text-red-600 font-semibold mb-2">Error</p>
-          <p className="text-slate-500 text-sm mb-4">{error || "An error occurred"}</p>
+        <div className="max-w-md mx-auto mt-12 p-8 text-center bg-white dark:bg-[#15181D] rounded-3xl shadow-2xl border border-slate-250/20 dark:border-white/5 animate-page-enter">
+          <p className="text-red-650 dark:text-red-400 font-extrabold text-lg mb-2">Metrics Offline</p>
+          <p className="text-slate-500 dark:text-slate-400 text-xs mb-6">{error || "An error occurred retrieving dashboard data."}</p>
           <button 
             onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-slate-900 text-white rounded-md hover:bg-slate-800 text-sm"
+            className="apple-btn apple-btn-primary px-6 py-2.5"
           >
-            Retry
+            Reconnect Metrics
           </button>
         </div>
       </Layout>
     );
   }
 
-  // Calculate percentages for Roles Pie Chart mock representation
   const totalUsers = stats.usersByRole.reduce((sum, r) => sum + r.count, 0) || 1;
   const roleColors: Record<string, string> = {
-    ADMIN: "#0f172a",
-    EMPLOYEE: "#3b82f6",
-    ASSET_MANAGER: "#10b981",
-    DEPARTMENT_HEAD: "#f59e0b",
+    ADMIN: "#007AFF",
+    EMPLOYEE: "#8B5CF6",
+    ASSET_MANAGER: "#10B981",
+    DEPARTMENT_HEAD: "#F59E0B",
   };
 
-  // Find max employees count for relative bar charts
   const maxDeptEmployees = Math.max(...stats.employeesByDepartment.map(d => d.count), 1);
+
+  // SVG Donut Calculations for Roles Chart
+  let accumulatedPercentage = 0;
+  const donutRadius = 55;
+  const donutCircumference = 2 * Math.PI * donutRadius;
 
   return (
     <Layout>
-      <div className="space-y-6">
-        {/* Metric Cards Grid */}
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Card 1: Employees */}
-          <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+      <div className="space-y-8 animate-page-enter">
+        
+        {/* Dynamic Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h1 className="text-2xl font-extrabold tracking-tight">System Status Overview</h1>
+            <p className="text-xs text-slate-450 dark:text-slate-450 mt-1">Real-time enterprise metrics, role mapping, and audit logs.</p>
+          </div>
+          
+          <div className="flex items-center gap-2 bg-[#007AFF]/8 dark:bg-[#007AFF]/12 border border-[#007AFF]/15 px-3 py-1.5 rounded-full">
+            <span className="h-2 w-2 rounded-full bg-[#007AFF] animate-pulse" />
+            <span className="text-[10px] font-extrabold text-[#007AFF] uppercase tracking-widest">Live Diagnostics</span>
+          </div>
+        </div>
+
+        {/* Asymmetrical KPI Cards Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          {/* Card 1: Total Employees (Double Width with Apple Blue mesh look) */}
+          <div className="md:col-span-2 premium-card bg-gradient-to-tr from-white/90 to-[#007AFF]/5 dark:from-[#15181D] dark:to-[#007AFF]/10 p-6 flex flex-col justify-between min-h-[190px]">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Total Employees</p>
-                <h3 className="text-3xl font-bold text-slate-900 mt-2">{stats.counts.employees}</h3>
+                <p className="text-[10px] font-extrabold text-[#007AFF] uppercase tracking-widest">Enterprise Roster</p>
+                <h3 className="text-4xl font-extrabold tracking-tight mt-2 text-foreground">
+                  {stats.counts.employees}
+                </h3>
               </div>
-              <div className="p-3 bg-slate-100 rounded-lg text-slate-700">
+              <div className="p-3 bg-[#007AFF]/10 rounded-2xl text-[#007AFF]">
                 <Users className="h-6 w-6" />
               </div>
             </div>
-            <div className="mt-4 flex items-center gap-1.5 text-xs text-slate-500">
-              <TrendingUp className="h-3.5 w-3.5 text-emerald-600" />
-              <span className="font-semibold text-emerald-600">Active</span> in organization directory
+            
+            <div className="flex items-end justify-between mt-4">
+              <div className="flex items-center gap-2 text-xs text-slate-500 font-semibold">
+                <TrendingUp className="h-4 w-4 text-emerald-500" />
+                <span className="text-emerald-500 font-extrabold">Active</span> roster members
+              </div>
+              
+              {/* Mini Sparkline Chart */}
+              <svg className="w-24 h-8 text-[#007AFF]" viewBox="0 0 100 30" fill="none">
+                <path 
+                  d="M0 25 C 20 20, 40 5, 60 15 S 80 5, 100 2" 
+                  stroke="currentColor" 
+                  strokeWidth="2.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                />
+                <path 
+                  d="M0 25 C 20 20, 40 5, 60 15 S 80 5, 100 2 L 100 30 L 0 30 Z" 
+                  fill="url(#sparkline-grad)" 
+                  opacity="0.1" 
+                />
+                <defs>
+                  <linearGradient id="sparkline-grad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="currentColor" />
+                    <stop offset="100%" stopColor="transparent" />
+                  </linearGradient>
+                </defs>
+              </svg>
             </div>
           </div>
 
-          {/* Card 2: Departments */}
-          <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+          {/* Card 2: Departments Summary */}
+          <div className="premium-card p-6 flex flex-col justify-between min-h-[190px]">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Departments</p>
-                <h3 className="text-3xl font-bold text-slate-900 mt-2">{stats.counts.departments}</h3>
+                <p className="text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-widest">Active Units</p>
+                <h3 className="text-4xl font-extrabold tracking-tight mt-2 text-foreground">
+                  {stats.counts.departments}
+                </h3>
               </div>
-              <div className="p-3 bg-slate-100 rounded-lg text-slate-700">
+              <div className="p-3 bg-slate-100 dark:bg-white/5 rounded-2xl text-slate-655 dark:text-slate-400">
                 <Building2 className="h-6 w-6" />
               </div>
             </div>
-            <div className="mt-4 flex items-center gap-1.5 text-xs text-slate-500">
-              <Link href="/departments" className="text-slate-900 hover:underline flex items-center gap-1 font-medium">
-                Manage departments <ArrowRight className="h-3 w-3" />
+            
+            <div className="mt-4">
+              <Link 
+                href="/departments" 
+                className="text-xs font-bold text-[#007AFF] hover:underline inline-flex items-center gap-1 group"
+              >
+                Structure Directory
+                <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
           </div>
 
           {/* Card 3: Asset Categories */}
-          <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+          <div className="premium-card p-6 bg-gradient-to-tr from-white/90 to-[#8B5CF6]/5 dark:from-[#15181D] dark:to-[#8B5CF6]/10 flex flex-col justify-between min-h-[190px]">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Asset Categories</p>
-                <h3 className="text-3xl font-bold text-slate-900 mt-2">{stats.counts.categories}</h3>
+                <p className="text-[10px] font-extrabold text-[#8B5CF6] uppercase tracking-widest">Asset Categories</p>
+                <h3 className="text-4xl font-extrabold tracking-tight mt-2 text-foreground">
+                  {stats.counts.categories}
+                </h3>
               </div>
-              <div className="p-3 bg-slate-100 rounded-lg text-slate-700">
+              <div className="p-3 bg-[#8B5CF6]/10 rounded-2xl text-[#8B5CF6]">
                 <Tag className="h-6 w-6" />
               </div>
             </div>
-            <div className="mt-4 flex items-center gap-1.5 text-xs text-slate-500">
-              <Link href="/categories" className="text-slate-900 hover:underline flex items-center gap-1 font-medium">
-                View asset categories <ArrowRight className="h-3 w-3" />
+            
+            <div className="mt-4">
+              <Link 
+                href="/categories" 
+                className="text-xs font-bold text-[#8B5CF6] hover:underline inline-flex items-center gap-1 group"
+              >
+                Category Matrix
+                <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
           </div>
 
-          {/* Card 4: Unread Notifications */}
-          <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+          {/* Card 4: Unread Alerts */}
+          <div className="premium-card p-6 flex flex-col justify-between min-h-[190px]">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Unread Alerts</p>
-                <h3 className="text-3xl font-bold text-slate-900 mt-2">{stats.counts.unreadNotifications}</h3>
+                <p className="text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-widest">Unresolved Alerts</p>
+                <h3 className="text-4xl font-extrabold tracking-tight mt-2 text-foreground">
+                  {stats.counts.unreadNotifications}
+                </h3>
               </div>
-              <div className={`p-3 rounded-lg ${stats.counts.unreadNotifications > 0 ? "bg-red-50 text-red-600" : "bg-slate-100 text-slate-700"}`}>
+              <div className={`p-3 rounded-2xl ${stats.counts.unreadNotifications > 0 ? "bg-red-500/10 text-red-500" : "bg-emerald-500/10 text-emerald-500"}`}>
                 <Bell className="h-6 w-6" />
               </div>
             </div>
-            <div className="mt-4 flex items-center gap-1.5 text-xs text-slate-500">
-              <Link href="/notifications" className="text-slate-900 hover:underline flex items-center gap-1 font-medium">
-                View notification inbox <ArrowRight className="h-3 w-3" />
+            
+            <div className="mt-4">
+              <Link 
+                href="/notifications" 
+                className="text-xs font-bold text-foreground hover:underline inline-flex items-center gap-1 group"
+              >
+                Alert Dashboard
+                <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
           </div>
+
+          {/* Card 5: Quick Actions Panel */}
+          <div className="premium-card p-6 bg-slate-900 text-white dark:bg-white/5 dark:text-foreground flex flex-col justify-between min-h-[190px]">
+            <div>
+              <p className="text-[10px] font-extrabold text-slate-400 dark:text-[#007AFF] uppercase tracking-widest">Quick actions</p>
+              <h4 className="text-md font-extrabold tracking-tight mt-2">Manage Resources</h4>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2 mt-4">
+              <Link href="/assets" className="p-2 bg-white/10 dark:bg-white/5 hover:bg-white/15 rounded-xl text-center text-[10px] font-bold transition-all">
+                Register Asset
+              </Link>
+              <Link href="/bookings" className="p-2 bg-white/10 dark:bg-white/5 hover:bg-white/15 rounded-xl text-center text-[10px] font-bold transition-all">
+                Book Room
+              </Link>
+            </div>
+          </div>
+
         </div>
 
-        {/* Charts & Distribution Section */}
+        {/* Charts Section */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Chart 1: Employees by Department (Relative Bar Chart) */}
-          <div className="lg:col-span-2 bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
-            <h3 className="text-base font-bold text-slate-900 mb-6">Employees by Department</h3>
+          
+          {/* Chart 1: Employees by Department (Apple Stocks Style bar UI) */}
+          <div className="lg:col-span-2 premium-card p-6">
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h3 className="text-base font-extrabold tracking-tight">Staff Distribution</h3>
+                <p className="text-[10px] text-slate-400 mt-0.5">Departmental workforce sizing</p>
+              </div>
+            </div>
+
             {stats.employeesByDepartment.length === 0 ? (
-              <div className="h-64 flex items-center justify-center text-slate-400 text-sm">
-                No departments registered
+              <div className="h-64 flex flex-col items-center justify-center text-slate-400 text-xs">
+                No active departments.
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-5 py-2">
                 {stats.employeesByDepartment.map((d) => {
                   const percent = (d.count / maxDeptEmployees) * 100;
                   return (
-                    <div key={d.department} className="space-y-1.5">
-                      <div className="flex justify-between text-sm">
-                        <span className="font-semibold text-slate-700">{d.department}</span>
-                        <span className="text-slate-500 font-medium">{d.count} Employees</span>
+                    <div key={d.department} className="space-y-1">
+                      <div className="flex justify-between text-xs font-semibold">
+                        <span>{d.department}</span>
+                        <span className="text-[#007AFF] font-bold">{d.count} Staff</span>
                       </div>
-                      <div className="h-7 w-full bg-slate-100 rounded-md overflow-hidden relative">
+                      <div className="h-6 w-full bg-slate-100/50 dark:bg-white/5 rounded-full overflow-hidden relative">
                         <div 
-                          className="h-full bg-slate-900 rounded-md transition-all duration-500" 
+                          className="h-full bg-gradient-to-r from-[#007AFF] to-[#8B5CF6] rounded-full transition-all duration-500 shadow-sm" 
                           style={{ width: `${percent}%` }}
                         />
                       </div>
@@ -233,116 +325,158 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {/* Chart 2: Users by Role (Radial Grid / List) */}
-          <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm flex flex-col">
-            <h3 className="text-base font-bold text-slate-900 mb-6">Users by Role</h3>
-            <div className="flex-1 flex flex-col justify-center">
+          {/* Chart 2: Users by Role (Vision-Pro Donut Ring) */}
+          <div className="premium-card p-6 flex flex-col justify-between">
+            <div>
+              <h3 className="text-base font-extrabold tracking-tight">Role Allocation</h3>
+              <p className="text-[10px] text-slate-400 mt-0.5">Permissions breakdown</p>
+            </div>
+
+            <div className="flex-1 flex flex-col items-center justify-center my-6">
               {stats.usersByRole.length === 0 ? (
-                <p className="text-center text-slate-400 text-sm">No user roles recorded</p>
+                <p className="text-slate-450 text-xs">No active users.</p>
               ) : (
-                <div className="space-y-5">
-                  {stats.usersByRole.map((r) => {
-                    const percent = Math.round((r.count / totalUsers) * 100);
-                    const color = roleColors[r.role] || "#64748b";
-                    return (
-                      <div key={r.role} className="flex items-center gap-4">
-                        <div className="h-3 w-3 rounded-full shrink-0" style={{ backgroundColor: color }} />
-                        <div className="flex-1 flex justify-between items-center">
-                          <div>
-                            <span className="text-sm font-bold text-slate-700 uppercase tracking-wide block">
-                              {r.role.replace("_", " ")}
-                            </span>
-                            <span className="text-xs text-slate-400 font-medium">{r.count} users</span>
-                          </div>
-                          <span className="text-sm font-bold text-slate-800 bg-slate-100 py-1 px-2.5 rounded-full">
-                            {percent}%
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div className="relative w-40 h-40 flex items-center justify-center">
+                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 140 140">
+                    <circle 
+                      cx="70" cy="70" r={donutRadius} 
+                      className="text-slate-100 dark:text-zinc-800" 
+                      strokeWidth="11" 
+                      fill="transparent" 
+                      stroke="currentColor"
+                    />
+                    {stats.usersByRole.map((r, idx) => {
+                      const percent = r.count / totalUsers;
+                      const strokeLength = percent * donutCircumference;
+                      const strokeOffset = donutCircumference - accumulatedPercentage;
+                      accumulatedPercentage += strokeLength;
+                      const color = roleColors[r.role] || "#64748b";
+
+                      return (
+                        <circle
+                          key={r.role}
+                          cx="70"
+                          cy="70"
+                          r={donutRadius}
+                          stroke={color}
+                          strokeWidth="11"
+                          strokeDasharray={donutCircumference}
+                          strokeDashoffset={strokeOffset}
+                          strokeLinecap="round"
+                          fill="transparent"
+                          className="transition-all duration-300"
+                        />
+                      );
+                    })}
+                  </svg>
+                  
+                  {/* Central Text readout */}
+                  <div className="absolute flex flex-col items-center justify-center">
+                    <span className="text-2xl font-extrabold tracking-tight">{totalUsers}</span>
+                    <span className="text-[8px] uppercase tracking-widest text-slate-400 font-bold">Accounts</span>
+                  </div>
                 </div>
               )}
             </div>
+
+            {/* Legends layout */}
+            <div className="space-y-2 border-t border-slate-100/50 dark:border-white/5 pt-4">
+              {stats.usersByRole.map((r) => {
+                const color = roleColors[r.role] || "#64748b";
+                return (
+                  <div key={r.role} className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
+                      <span className="font-semibold text-slate-500 dark:text-slate-400 uppercase text-[9px] tracking-wider">
+                        {r.role.replace("_", " ")}
+                      </span>
+                    </div>
+                    <span className="font-extrabold">{r.count}</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
+
         </div>
 
-        {/* Activity logs & Logins lists */}
+        {/* System Activity & Logins logs */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Recent Activity Log */}
-          <div className="lg:col-span-2 bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <Clock className="h-5 w-5 text-slate-400" />
-                Recent System Activity
-              </h3>
-            </div>
+          
+          {/* Vertical Activities timeline */}
+          <div className="lg:col-span-2 premium-card p-6">
+            <h3 className="text-base font-extrabold tracking-tight mb-6 flex items-center gap-2">
+              <Clock className="h-4.5 w-4.5 text-slate-400" />
+              Event Chronology
+            </h3>
+
             {stats.recentActivity.length === 0 ? (
-              <div className="h-48 flex items-center justify-center text-slate-400 text-sm">
-                No system activity logged
+              <div className="h-64 flex items-center justify-center text-slate-400 text-xs">
+                No system activity logged.
               </div>
             ) : (
-              <div className="flow-root">
-                <ul className="-mb-8">
-                  {stats.recentActivity.map((log, index) => (
-                    <li key={log.id}>
-                      <div className="relative pb-8">
-                        {index !== stats.recentActivity.length - 1 && (
-                          <span className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-200" aria-hidden="true" />
-                        )}
-                        <div className="relative flex space-x-3">
-                          <div>
-                            <span className="h-8 w-8 rounded-full bg-slate-900 flex items-center justify-center text-white ring-8 ring-white">
-                              {log.user?.name[0].toUpperCase()}
-                            </span>
-                          </div>
-                          <div className="flex-1 min-w-0 pt-1.5 flex justify-between space-x-4">
-                            <div>
-                              <p className="text-sm text-slate-600 font-medium">
-                                <span className="font-bold text-slate-950">{log.user?.name}</span>{" "}
-                                {log.description}
-                              </p>
-                            </div>
-                            <div className="text-right text-xs whitespace-nowrap text-slate-400 font-semibold">
-                              {new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </div>
-                          </div>
-                        </div>
+              <div className="space-y-1 pl-1">
+                {stats.recentActivity.map((log) => (
+                  <div key={log.id} className="timeline-item">
+                    <span className="timeline-dot" />
+                    <div className="flex justify-between items-start gap-4">
+                      <div>
+                        <p className="text-xs font-bold text-foreground">
+                          {log.user?.name}
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">
+                          {log.description}
+                        </p>
+                        <span className="inline-block mt-1.5 px-2 py-0.5 bg-slate-100 dark:bg-white/5 rounded text-[8px] font-bold text-slate-450 dark:text-slate-400 uppercase tracking-wider">
+                          {log.module}
+                        </span>
                       </div>
-                    </li>
-                  ))}
-                </ul>
+                      <span className="text-[10px] text-slate-400 font-bold whitespace-nowrap">
+                        {new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
 
-          {/* Latest Logins */}
-          <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
-            <h3 className="text-base font-bold text-slate-900 mb-6 flex items-center gap-2">
-              <LogIn className="h-5 w-5 text-slate-400" />
-              Latest Logins
+          {/* Sleek Logins list */}
+          <div className="premium-card p-6">
+            <h3 className="text-base font-extrabold tracking-tight mb-6 flex items-center gap-2">
+              <LogIn className="h-4.5 w-4.5 text-slate-400" />
+              Active Sessions
             </h3>
+
             {stats.latestLogins.length === 0 ? (
-              <div className="h-48 flex items-center justify-center text-slate-400 text-sm">
-                No recent logins recorded
+              <div className="h-64 flex items-center justify-center text-slate-400 text-xs">
+                No recent logins recorded.
               </div>
             ) : (
               <div className="space-y-4">
                 {stats.latestLogins.map((login) => (
-                  <div key={login.id} className="flex justify-between items-start border-b border-slate-100 pb-3 last:border-0 last:pb-0">
-                    <div>
-                      <p className="text-sm font-bold text-slate-800">{login.user?.name}</p>
-                      <p className="text-xs text-slate-400">{login.user?.email}</p>
+                  <div key={login.id} className="flex justify-between items-center pb-3 border-b border-slate-100/50 dark:border-white/5 last:border-0 last:pb-0">
+                    <div className="flex items-center gap-3">
+                      <div className="h-7 w-7 rounded-full bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 flex items-center justify-center font-bold text-xs shrink-0">
+                        {login.user?.name[0].toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold">{login.user?.name}</p>
+                        <p className="text-[10px] text-slate-400 truncate max-w-[120px]">{login.user?.email}</p>
+                      </div>
                     </div>
-                    <span className="text-xs font-semibold text-slate-400 bg-slate-50 py-1 px-2.5 rounded border border-slate-200">
-                      {new Date(login.createdAt).toLocaleDateString()}
+                    
+                    <span className="text-[9px] font-extrabold text-slate-450 dark:text-slate-500 bg-slate-100/60 dark:bg-white/5 py-1 px-2.5 rounded-full border border-slate-200/10">
+                      {new Date(login.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                     </span>
                   </div>
                 ))}
               </div>
             )}
           </div>
+
         </div>
+
       </div>
     </Layout>
   );
