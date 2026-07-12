@@ -1,19 +1,43 @@
 // client/app/login/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginFormValues } from "@/features/auth/schemas";
 import { api } from "@/lib/axios";
 import Link from "next/link";
-import { KeyRound, Mail, AlertTriangle } from "lucide-react";
+import { KeyRound, Mail, AlertTriangle, Sun, Moon } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  // Sync theme
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") as "light" | "dark";
+    const initialTheme = savedTheme || "light";
+    setTheme(initialTheme);
+    if (initialTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
+    if (newTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  };
 
   const {
     register,
@@ -31,7 +55,6 @@ export default function LoginPage() {
       const response = await api.post('/auth/login', data);
       
       if (response.data.success && response.data.data?.token) {
-        // Store both token and user object
         localStorage.setItem('token', response.data.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.data.user));
         router.push('/dashboard');
@@ -44,29 +67,33 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden transition-colors duration-500">
-      {/* Floating Animated Backdrop blobs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="float-bubble w-[450px] h-[450px] bg-blue-400/20 top-10 left-10" />
-        <div className="float-bubble w-96 h-96 bg-purple-400/20 bottom-10 right-10" style={{ animationDelay: "-3s" }} />
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-black py-12 px-4 sm:px-6 lg:px-8 relative transition-colors duration-300">
+      {/* Top Right Theme Toggle */}
+      <div className="absolute top-6 right-6">
+        <button 
+          onClick={toggleTheme}
+          className="p-2.5 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-zinc-900 text-slate-700 dark:text-zinc-350 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors shadow-sm"
+        >
+          {theme === "light" ? <Moon className="h-4.5 w-4.5" /> : <Sun className="h-4.5 w-4.5" />}
+        </button>
       </div>
 
-      <div className="max-w-md w-full p-8 glass-card rounded-2xl shadow-xl z-10 border border-slate-200/50 dark:border-slate-800/50 relative">
+      <div className="max-w-md w-full p-8 apple-card border border-slate-200 dark:border-slate-800/80 relative">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Sign In</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 font-medium">Welcome back to the ERP system</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Sign In</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">Access your Asset Management Dashboard</p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-50/70 border border-red-200 text-red-650 text-xs font-semibold rounded-md flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4 shrink-0 text-red-500" />
+          <div className="mb-5 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 text-xs font-semibold rounded-md flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Email Address</label>
+            <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Email Address</label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Mail className="h-4 w-4 text-slate-400" />
@@ -74,8 +101,9 @@ export default function LoginPage() {
               <input
                 {...register("email")}
                 type="email"
+                required
                 placeholder="name@company.com"
-                className="w-full pl-10 pr-3 py-2 border border-slate-350 dark:border-slate-800 dark:bg-slate-900 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white text-sm"
+                className="apple-input pl-10"
               />
             </div>
             {errors.email && <p className="text-red-500 text-xs mt-1 font-semibold">{errors.email.message}</p>}
@@ -83,9 +111,9 @@ export default function LoginPage() {
 
           <div>
             <div className="flex justify-between items-center mb-2">
-              <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Password</label>
-              <Link href="/forgot-password" className="text-xs text-slate-500 hover:text-slate-900 dark:hover:text-white hover:underline font-semibold">
-                Forgot Password?
+              <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Password</label>
+              <Link href="/forgot-password" className="text-xs text-slate-550 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:underline font-semibold">
+                Forgot password?
               </Link>
             </div>
             <div className="relative">
@@ -95,8 +123,9 @@ export default function LoginPage() {
               <input
                 {...register("password")}
                 type="password"
+                required
                 placeholder="••••••••"
-                className="w-full pl-10 pr-3 py-2 border border-slate-355 dark:border-slate-800 dark:bg-slate-900 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white text-sm"
+                className="apple-input pl-10"
               />
             </div>
             {errors.password && <p className="text-red-500 text-xs mt-1 font-semibold">{errors.password.message}</p>}
@@ -105,15 +134,15 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-slate-900 dark:bg-white dark:text-slate-950 text-white py-2.5 px-4 rounded-md hover:bg-slate-800 dark:hover:bg-slate-100 disabled:opacity-50 transition-colors mt-6 font-bold text-sm shadow-sm"
+            className="w-full apple-button py-2.5 text-sm font-semibold shadow-sm"
           >
             {isLoading ? "Signing In..." : "Sign In"}
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-slate-500 font-semibold">
+        <div className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400 font-semibold">
           Don't have an account?{" "}
-          <Link href="/signup" className="text-slate-900 dark:text-white font-bold hover:underline">
+          <Link href="/signup" className="text-blue-600 dark:text-blue-400 font-bold hover:underline">
             Sign Up
           </Link>
         </div>

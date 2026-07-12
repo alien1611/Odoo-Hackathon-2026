@@ -1,19 +1,43 @@
 // client/app/signup/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema, SignupFormValues } from "@/features/auth/schemas";
 import { api } from "@/lib/axios";
 import Link from "next/link";
-import { User, Mail, Phone, KeyRound, AlertTriangle } from "lucide-react";
+import { User, Mail, Phone, KeyRound, AlertTriangle, Sun, Moon } from "lucide-react";
 
 export default function SignupPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  // Sync theme
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") as "light" | "dark";
+    const initialTheme = savedTheme || "light";
+    setTheme(initialTheme);
+    if (initialTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
+    if (newTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  };
 
   const {
     register,
@@ -44,29 +68,33 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden transition-colors duration-500">
-      {/* Floating Animated Backdrop blobs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="float-bubble w-[450px] h-[450px] bg-blue-400/20 top-10 left-10" />
-        <div className="float-bubble w-96 h-96 bg-purple-400/20 bottom-10 right-10" style={{ animationDelay: "-3s" }} />
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-black py-12 px-4 sm:px-6 lg:px-8 relative transition-colors duration-300">
+      {/* Top Right Theme Toggle */}
+      <div className="absolute top-6 right-6">
+        <button 
+          onClick={toggleTheme}
+          className="p-2.5 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-zinc-900 text-slate-700 dark:text-zinc-350 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors shadow-sm"
+        >
+          {theme === "light" ? <Moon className="h-4.5 w-4.5" /> : <Sun className="h-4.5 w-4.5" />}
+        </button>
       </div>
 
-      <div className="max-w-md w-full p-8 glass-card rounded-2xl shadow-xl z-10 border border-slate-200/50 dark:border-slate-800/50 relative">
+      <div className="max-w-md w-full p-8 apple-card border border-slate-200 dark:border-slate-800/80 relative">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Create an Account</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 font-medium">Join the ERP system as an Employee</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Create an Account</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">Join the ERP system as an Employee</p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-50/70 border border-red-200 text-red-650 text-xs font-semibold rounded-md flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4 shrink-0 text-red-500" />
+          <div className="mb-5 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 text-red-650 dark:text-red-400 text-xs font-semibold rounded-md flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Full Name</label>
+            <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Full Name</label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <User className="h-4 w-4 text-slate-400" />
@@ -74,15 +102,16 @@ export default function SignupPage() {
               <input
                 {...register("name")}
                 type="text"
+                required
                 placeholder="John Doe"
-                className="w-full pl-10 pr-3 py-2 border border-slate-350 dark:border-slate-800 dark:bg-slate-900 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white text-sm"
+                className="apple-input pl-10"
               />
             </div>
             {errors.name && <p className="text-red-500 text-xs mt-1 font-semibold">{errors.name.message}</p>}
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Email Address</label>
+            <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Email Address</label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Mail className="h-4 w-4 text-slate-400" />
@@ -90,15 +119,16 @@ export default function SignupPage() {
               <input
                 {...register("email")}
                 type="email"
+                required
                 placeholder="name@company.com"
-                className="w-full pl-10 pr-3 py-2 border border-slate-350 dark:border-slate-800 dark:bg-slate-900 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white text-sm"
+                className="apple-input pl-10"
               />
             </div>
             {errors.email && <p className="text-red-500 text-xs mt-1 font-semibold">{errors.email.message}</p>}
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Phone Number (Optional)</label>
+            <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Phone Number (Optional)</label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Phone className="h-4 w-4 text-slate-400" />
@@ -107,14 +137,14 @@ export default function SignupPage() {
                 {...register("phone")}
                 type="tel"
                 placeholder="+1 234 567 890"
-                className="w-full pl-10 pr-3 py-2 border border-slate-350 dark:border-slate-800 dark:bg-slate-900 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white text-sm"
+                className="apple-input pl-10"
               />
             </div>
             {errors.phone && <p className="text-red-500 text-xs mt-1 font-semibold">{errors.phone.message}</p>}
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Password</label>
+            <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Password</label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <KeyRound className="h-4 w-4 text-slate-400" />
@@ -122,8 +152,9 @@ export default function SignupPage() {
               <input
                 {...register("password")}
                 type="password"
+                required
                 placeholder="••••••••"
-                className="w-full pl-10 pr-3 py-2 border border-slate-350 dark:border-slate-800 dark:bg-slate-900 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white text-sm"
+                className="apple-input pl-10"
               />
             </div>
             {errors.password && <p className="text-red-500 text-xs mt-1 font-semibold">{errors.password.message}</p>}
@@ -132,15 +163,15 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-slate-900 dark:bg-white dark:text-slate-950 text-white py-2.5 px-4 rounded-md hover:bg-slate-800 dark:hover:bg-slate-100 disabled:opacity-50 transition-colors mt-6 font-bold text-sm shadow-sm"
+            className="w-full apple-button py-2.5 text-sm font-semibold shadow-sm mt-2"
           >
             {isLoading ? "Creating Account..." : "Sign Up"}
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-slate-500 font-semibold">
+        <div className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400 font-semibold">
           Already have an account?{" "}
-          <Link href="/login" className="text-slate-900 dark:text-white font-bold hover:underline">
+          <Link href="/login" className="text-blue-600 dark:text-blue-400 font-bold hover:underline">
             Sign In
           </Link>
         </div>
