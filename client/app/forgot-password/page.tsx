@@ -98,7 +98,7 @@ export default function ForgotPasswordPage() {
                   placeholder="e.g. admin@company.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="apple-input pl-10"
+                  className="apple-input apple-input-with-icon"
                 />
               </div>
             </div>

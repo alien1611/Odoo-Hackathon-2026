@@ -46,10 +46,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   // Theme state
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
-  // Custom Cursor Refs
-  const cursorDotRef = useRef<HTMLDivElement | null>(null);
-  const cursorRingRef = useRef<HTMLDivElement | null>(null);
-  const layoutContainerRef = useRef<HTMLDivElement | null>(null);
+
 
   // 1. Theme Toggle Hook
   useEffect(() => {
@@ -111,83 +108,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
-  // 3. Ultra-Smooth Lag-free Custom Cursor (60 FPS Interpolation)
-  useEffect(() => {
-    const dot = cursorDotRef.current;
-    const ring = cursorRingRef.current;
-    if (!dot || !ring) return;
 
-    let mouseX = 0;
-    let mouseY = 0;
-    let ringX = 0;
-    let ringY = 0;
-    let isHovering = false;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-      
-      // Instantly position the small inner dot
-      dot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
-    };
-
-    const handleMouseOver = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (
-        target.tagName === "BUTTON" ||
-        target.tagName === "A" ||
-        target.tagName === "INPUT" ||
-        target.tagName === "SELECT" ||
-        target.tagName === "TEXTAREA" ||
-        target.closest("a") ||
-        target.closest("button") ||
-        target.getAttribute("role") === "button"
-      ) {
-        isHovering = true;
-        layoutContainerRef.current?.classList.add("custom-cursor-hovering");
-      }
-    };
-
-    const handleMouseOut = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (
-        target.tagName === "BUTTON" ||
-        target.tagName === "A" ||
-        target.tagName === "INPUT" ||
-        target.tagName === "SELECT" ||
-        target.tagName === "TEXTAREA" ||
-        target.closest("a") ||
-        target.closest("button") ||
-        target.getAttribute("role") === "button"
-      ) {
-        isHovering = false;
-        layoutContainerRef.current?.classList.remove("custom-cursor-hovering");
-      }
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseover", handleMouseOver);
-    window.addEventListener("mouseout", handleMouseOut);
-
-    // RAF loop to smoothly interpolate the outer ring (magnetic lag-free effect)
-    let animationId: number;
-    const render = () => {
-      const ease = 0.15; // interpolation speed
-      ringX += (mouseX - ringX) * ease;
-      ringY += (mouseY - ringY) * ease;
-
-      ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0)`;
-      animationId = requestAnimationFrame(render);
-    };
-    render();
-
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseover", handleMouseOver);
-      window.removeEventListener("mouseout", handleMouseOut);
-      cancelAnimationFrame(animationId);
-    };
-  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -224,21 +145,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div 
-      ref={layoutContainerRef}
       className="min-h-screen flex flex-col bg-slate-50 dark:bg-black text-slate-900 dark:text-slate-100 transition-colors duration-300 relative"
     >
-      {/* 60 FPS Custom Cursor Elements */}
-      <div ref={cursorDotRef} className="custom-cursor-dot" />
-      <div ref={cursorRingRef} className="custom-cursor-ring" />
-
-      {/* Subtle animated wave mesh */}
-      <div className="wave-mesh wave-mesh-active" />
-
-      {/* Floating Blurred Blobs (Low Opacity) */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="bg-blob w-[500px] h-[500px] bg-blue-500/10 top-10 left-10" />
-        <div className="bg-blob w-[450px] h-[450px] bg-indigo-500/8 bottom-20 right-10" style={{ animationDelay: "-6s" }} />
-      </div>
 
       {/* Top Header (Glassmorphic Navigation Bar) */}
       <header className="sticky top-0 z-30 h-16 bg-white/70 dark:bg-black/70 backdrop-blur-md border-b border-slate-200/50 dark:border-slate-800/50 flex items-center justify-between px-4 sm:px-6">

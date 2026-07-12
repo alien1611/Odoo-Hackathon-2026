@@ -211,3 +211,20 @@ input:focus, select:focus, textarea:focus {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(107, 114, 128, 0.4);
 }
+
+.apple-input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  background-color: var(--card-bg) !important;
+  color: var(--foreground) !important;
+  border: 1.5px solid var(--card-border) !important;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.apple-input-with-icon {
+  padding-left: 2.75rem !important; /* Forces right-indentation to shift placeholder text like name@company.com to the right, resolving overlap with lock/mail icons */
+}
+

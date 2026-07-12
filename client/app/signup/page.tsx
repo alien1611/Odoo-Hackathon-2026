@@ -104,7 +104,7 @@ export default function SignupPage() {
                 type="text"
                 required
                 placeholder="John Doe"
-                className="apple-input pl-10"
+                className="apple-input apple-input-with-icon"
               />
             </div>
             {errors.name && <p className="text-red-500 text-xs mt-1 font-semibold">{errors.name.message}</p>}
@@ -121,7 +121,7 @@ export default function SignupPage() {
                 type="email"
                 required
                 placeholder="name@company.com"
-                className="apple-input pl-10"
+                className="apple-input apple-input-with-icon"
               />
             </div>
             {errors.email && <p className="text-red-500 text-xs mt-1 font-semibold">{errors.email.message}</p>}
@@ -137,7 +137,7 @@ export default function SignupPage() {
                 {...register("phone")}
                 type="tel"
                 placeholder="+1 234 567 890"
-                className="apple-input pl-10"
+                className="apple-input apple-input-with-icon"
               />
             </div>
             {errors.phone && <p className="text-red-500 text-xs mt-1 font-semibold">{errors.phone.message}</p>}
@@ -154,7 +154,7 @@ export default function SignupPage() {
                 type="password"
                 required
                 placeholder="••••••••"
-                className="apple-input pl-10"
+                className="apple-input apple-input-with-icon"
               />
             </div>
             {errors.password && <p className="text-red-500 text-xs mt-1 font-semibold">{errors.password.message}</p>}
