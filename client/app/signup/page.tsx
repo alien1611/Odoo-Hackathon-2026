@@ -4,11 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema, LoginFormValues } from "@/features/auth/schemas";
+import { signupSchema, SignupFormValues } from "@/features/auth/schemas";
 import { api } from "@/lib/axios";
 import Link from "next/link";
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -17,28 +17,25 @@ export default function LoginPage() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<SignupFormValues>({
+    resolver: zodResolver(signupSchema),
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
-    console.log("Submit button clicked, data:", data); 
+  const onSubmit = async (data: SignupFormValues) => {
     try {
       setIsLoading(true);
       setError(null);
       
-      const response = await api.post('/auth/login', data);
-      console.log("Full response from server:", response.data);
+      const response = await api.post('/auth/signup', {
+        ...data,
+        role: "EMPLOYEE",
+      });
       
-      if (response.data.token) {
-        // Store the token in localStorage for persistence
-        localStorage.setItem('erp_token', response.data.token);
-        // Redirect to the main dashboard
-        router.push('/dashboard');
+      if (response.data.success) {
+        router.push('/login?registered=true');
       }
     } catch (err: any) {
-      console.error("DEBUG ERROR:", err.response?.data || err.message);
-      setError(err.response?.data?.message || "Invalid email or password");
+      setError(err.response?.data?.message || "An unexpected error occurred during registration");
     } finally {
       setIsLoading(false);
     }
@@ -48,8 +45,8 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-sm border border-slate-200">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-slate-900">Sign In</h1>
-          <p className="text-sm text-slate-500 mt-2">Welcome back to the ERP system</p>
+          <h1 className="text-2xl font-bold text-slate-900">Create an Account</h1>
+          <p className="text-sm text-slate-500 mt-2">Join the ERP system as an Employee</p>
         </div>
 
         {error && (
@@ -60,13 +57,36 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+            <input
+              {...register("name")}
+              type="text"
+              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900"
+              placeholder="John Doe"
+            />
+            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
+          </div>
+
+          <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
             <input
               {...register("email")}
               type="email"
               className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900"
+              placeholder="name@company.com"
             />
             {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Phone Number (Optional)</label>
+            <input
+              {...register("phone")}
+              type="tel"
+              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900"
+              placeholder="+1 234 567 890"
+            />
+            {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>}
           </div>
 
           <div>
@@ -75,6 +95,7 @@ export default function LoginPage() {
               {...register("password")}
               type="password"
               className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900"
+              placeholder="••••••••"
             />
             {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
           </div>
@@ -84,14 +105,14 @@ export default function LoginPage() {
             disabled={isLoading}
             className="w-full bg-slate-900 text-white py-2 px-4 rounded-md hover:bg-slate-800 disabled:opacity-50 transition-colors mt-6"
           >
-            {isLoading ? "Signing In..." : "Sign In"}
+            {isLoading ? "Creating Account..." : "Sign Up"}
           </button>
         </form>
 
         <div className="mt-6 text-center text-sm text-slate-500">
-          Don't have an account?{" "}
-          <Link href="/signup" className="text-slate-900 font-medium hover:underline">
-            Sign Up
+          Already have an account?{" "}
+          <Link href="/login" className="text-slate-900 font-medium hover:underline">
+            Sign In
           </Link>
         </div>
       </div>
