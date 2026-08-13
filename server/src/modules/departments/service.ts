@@ -18,8 +18,11 @@ export class DepartmentService {
     return dept;
   }
 
+  async getStats() {
+    return this.repo.getStats();
+  }
+
   async createDepartment(data: DepartmentInput, adminId?: string) {
-    // Business Logic: Prevent duplicate names (Prisma throws, but manual check is cleaner for custom errors)
     const dept = await this.repo.create(data);
 
     if (adminId) {
@@ -41,15 +44,53 @@ export class DepartmentService {
     return dept;
   }
 
-  async updateDepartment(id: string, data: Partial<DepartmentInput>) {
+  async updateDepartment(id: string, data: Partial<DepartmentInput>, adminId?: string) {
     const existing = await this.repo.findById(id);
     if (!existing) throw new Error("Department not found");
-    return this.repo.update(id, data);
+
+    const dept = await this.repo.update(id, data);
+
+    if (adminId) {
+      await this.notificationService.createNotification({
+        userId: adminId,
+        title: "Department Updated",
+        message: `Department '${dept.name}' has been updated.`,
+        type: "INFO",
+      });
+
+      await this.activityLogService.logAction(
+        adminId,
+        "UPDATE_DEPARTMENT",
+        "DEPARTMENT",
+        `Updated Department '${dept.name}'`
+      );
+    }
+
+    return dept;
   }
 
-  async deleteDepartment(id: string) {
+  async deleteDepartment(id: string, adminId?: string) {
     const existing = await this.repo.findById(id);
     if (!existing) throw new Error("Department not found");
-    return this.repo.delete(id);
+
+    const result = await this.repo.delete(id);
+
+    if (adminId) {
+      await this.notificationService.createNotification({
+        userId: adminId,
+        title: "Department Deleted",
+        message: `Department '${existing.name}' was removed from the system.`,
+        type: "ALERT",
+      });
+
+      await this.activityLogService.logAction(
+        adminId,
+        "DELETE_DEPARTMENT",
+        "DEPARTMENT",
+        `Deleted Department '${existing.name}'`
+      );
+    }
+
+    return result;
   }
 }

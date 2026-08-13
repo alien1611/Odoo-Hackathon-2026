@@ -205,14 +205,14 @@ export default function CategoriesPage() {
 
         {/* Filter Toolbar */}
         <div className="glass-panel p-4 bg-white/50 dark:bg-[#15181D]/45 flex flex-col md:flex-row gap-4 items-center justify-between">
-          <div className="relative w-full md:w-80">
-            <Search className="absolute left-3 top-2.5 h-4.5 w-4.5 text-slate-400" />
+          <div className="relative w-full md:w-80 flex items-center">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none z-10" />
             <input
               type="text"
               placeholder="Search categories..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="glass-input pl-10"
+              className="glass-input glass-input-icon !pl-11 pr-4"
             />
           </div>
           <div className="text-[10px] text-slate-450 font-extrabold uppercase tracking-widest">

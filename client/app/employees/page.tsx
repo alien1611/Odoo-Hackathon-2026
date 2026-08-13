@@ -214,8 +214,8 @@ export default function EmployeesPage() {
 
         {/* Toolbar */}
         <div className="glass-panel p-4 bg-white/50 dark:bg-[#15181D]/45 flex flex-col md:flex-row gap-4 items-center justify-between">
-          <div className="relative w-full md:w-80">
-            <Search className="absolute left-3 top-2.5 h-4.5 w-4.5 text-slate-400" />
+          <div className="relative w-full md:w-80 flex items-center">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none z-10" />
             <input
               type="text"
               placeholder="Search by name or email..."
@@ -224,7 +224,7 @@ export default function EmployeesPage() {
                 setSearchQuery(e.target.value);
                 setPage(1);
               }}
-              className="glass-input pl-10"
+              className="glass-input glass-input-icon !pl-11 pr-4"
             />
           </div>
           <div className="text-[10px] text-slate-450 font-extrabold uppercase tracking-widest">
@@ -353,8 +353,8 @@ export default function EmployeesPage() {
 
         {/* Modal: Promote Role */}
         {isPromoteModalOpen && selectedEmployee && (
-          <div className="fixed inset-0 z-55 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-page-enter">
-            <div className="bg-white dark:bg-[#15181D] border border-slate-200/50 dark:border-white/5 rounded-3xl shadow-2xl w-full max-w-sm relative overflow-hidden flex flex-col">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md overflow-y-auto animate-page-enter">
+            <div className="bg-white dark:bg-[#15181D] border border-slate-200/50 dark:border-white/5 rounded-3xl shadow-2xl w-full max-w-sm max-h-[90vh] overflow-y-auto relative flex flex-col">
               <div className="h-16 border-b border-slate-100 dark:border-white/5 flex items-center justify-between px-6 bg-slate-50/50 dark:bg-[#15181D]/30">
                 <div>
                   <div className="flex items-center gap-1.5 mb-1.5">
@@ -367,7 +367,7 @@ export default function EmployeesPage() {
                   </h3>
                 </div>
                 <button 
-                  onClick={() => setIsPromoteModalOpen(false)}
+                  onClick={() => setIsPromoteModalOpen(false)} 
                   className="p-2 text-slate-450 hover:text-foreground rounded-lg hover:bg-slate-100 dark:hover:bg-white/5"
                 >
                   <X className="h-5 w-5" />
@@ -376,7 +376,7 @@ export default function EmployeesPage() {
 
               <form onSubmit={handlePromotion} className="p-6 space-y-5">
                 {actionError && (
-                  <div className="p-3 bg-red-550/10 border border-red-500/15 text-red-600 dark:text-red-400 text-xs font-bold rounded-2xl flex items-center gap-2">
+                  <div className="p-3 bg-red-500/10 border border-red-500/15 text-red-600 dark:text-red-400 text-xs font-bold rounded-2xl flex items-center gap-2">
                     {actionError}
                   </div>
                 )}
@@ -431,8 +431,8 @@ export default function EmployeesPage() {
 
         {/* Modal: Setup / Department & Info Edit */}
         {isEditModalOpen && selectedEmployee && (
-          <div className="fixed inset-0 z-55 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-page-enter">
-            <div className="bg-white dark:bg-[#15181D] border border-slate-200/50 dark:border-white/5 rounded-3xl shadow-2xl w-full max-w-md relative overflow-hidden flex flex-col">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md overflow-y-auto animate-page-enter">
+            <div className="bg-white dark:bg-[#15181D] border border-slate-200/50 dark:border-white/5 rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto relative flex flex-col">
               <div className="h-16 border-b border-slate-100 dark:border-white/5 flex items-center justify-between px-6 bg-slate-50/50 dark:bg-[#15181D]/30">
                 <div>
                   <div className="flex items-center gap-1.5 mb-1.5">

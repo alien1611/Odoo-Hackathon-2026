@@ -36,6 +36,36 @@ export class NotificationController {
     }
   };
 
+  getUnreadCount = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const userId = (req as any).user.id;
+      const unreadCount = await this.service.getUnreadCount(userId);
+
+      res.status(200).json({
+        success: true,
+        message: "Unread count retrieved successfully",
+        data: { unreadCount },
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  markAllAsRead = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const userId = (req as any).user.id;
+      await this.service.markAllAsRead(userId);
+
+      res.status(200).json({
+        success: true,
+        message: "All notifications marked as read",
+        data: {},
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   deleteNotification = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = (req as any).user.id;

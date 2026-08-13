@@ -273,14 +273,14 @@ export default function AssetsPage() {
           <div className="flex flex-col lg:flex-row gap-4">
             
             {/* Search Input */}
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+            <div className="relative flex-1 flex items-center">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none z-10" />
               <input 
                 type="text"
                 placeholder="Search asset tags, names, serial numbers, locations..."
                 value={search}
                 onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                className="glass-input pl-10"
+                className="glass-input glass-input-icon !pl-11 pr-4"
               />
             </div>
             
@@ -452,8 +452,8 @@ export default function AssetsPage() {
 
         {/* MODAL 1: ALLOCATE ASSET */}
         {isAllocateModalOpen && selectedAsset && (
-          <div className="fixed inset-0 z-55 flex items-center justify-center bg-black/40 backdrop-blur-md animate-page-enter">
-            <div className="bg-white dark:bg-[#15181D] border border-slate-200/50 dark:border-white/5 rounded-3xl shadow-2xl w-full max-w-md p-6 relative">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md overflow-y-auto animate-page-enter">
+            <div className="bg-white dark:bg-[#15181D] border border-slate-200/50 dark:border-white/5 rounded-3xl shadow-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto relative">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   {/* macOS dots visual */}
@@ -524,8 +524,8 @@ export default function AssetsPage() {
 
         {/* MODAL 2: REQUEST TRANSFER */}
         {isTransferModalOpen && selectedAsset && (
-          <div className="fixed inset-0 z-55 flex items-center justify-center bg-black/40 backdrop-blur-md animate-page-enter">
-            <div className="bg-white dark:bg-[#15181D] border border-slate-200/50 dark:border-white/5 rounded-3xl shadow-2xl w-full max-w-md p-6 relative">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md overflow-y-auto animate-page-enter">
+            <div className="bg-white dark:bg-[#15181D] border border-slate-200/50 dark:border-white/5 rounded-3xl shadow-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto relative">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <div className="flex items-center gap-1.5 mb-3">
@@ -589,8 +589,8 @@ export default function AssetsPage() {
 
         {/* MODAL 3: ADD ASSET */}
         {isAddModalOpen && (
-          <div className="fixed inset-0 z-55 flex items-center justify-center bg-black/40 backdrop-blur-md overflow-y-auto animate-page-enter">
-            <div className="bg-white dark:bg-[#15181D] border border-slate-200/50 dark:border-white/5 rounded-3xl shadow-2xl w-full max-w-2xl p-6 my-8 relative">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md overflow-y-auto animate-page-enter">
+            <div className="bg-white dark:bg-[#15181D] border border-slate-200/50 dark:border-white/5 rounded-3xl shadow-2xl w-full max-w-2xl p-6 my-auto max-h-[90vh] overflow-y-auto relative">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <div className="flex items-center gap-1.5 mb-3">

@@ -56,6 +56,7 @@ export default function NotificationsPage() {
         setNotifications(prev => 
           prev.map(n => n.id === id ? { ...n, read: true } : n)
         );
+        window.dispatchEvent(new Event("notificationsUpdated"));
       }
     } catch (err) {
       console.error("Failed to mark notification as read:", err);
@@ -67,8 +68,13 @@ export default function NotificationsPage() {
     if (unread.length === 0) return;
 
     try {
-      await Promise.all(unread.map(n => api.patch(`/notifications/read/${n.id}`)));
+      try {
+        await api.patch("/notifications/read-all");
+      } catch {
+        await Promise.all(unread.map(n => api.patch(`/notifications/read/${n.id}`)));
+      }
       setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      window.dispatchEvent(new Event("notificationsUpdated"));
     } catch (err) {
       console.error("Failed to mark all as read:", err);
     }
@@ -79,6 +85,7 @@ export default function NotificationsPage() {
       const response = await api.delete(`/notifications/user/${id}`);
       if (response.data.success) {
         setNotifications(prev => prev.filter(n => n.id !== id));
+        window.dispatchEvent(new Event("notificationsUpdated"));
       }
     } catch (err) {
       console.error("Failed to delete notification:", err);

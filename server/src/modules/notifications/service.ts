@@ -15,6 +15,15 @@ export class NotificationService {
     return { success: true };
   }
 
+  async getUnreadCount(userId: string) {
+    return this.repo.countUnread(userId);
+  }
+
+  async markAllAsRead(userId: string) {
+    await this.repo.markAllAsRead(userId);
+    return { success: true };
+  }
+
   async deleteNotification(id: string, userId: string) {
     const result = await this.repo.delete(id, userId);
     if (result.count === 0) {

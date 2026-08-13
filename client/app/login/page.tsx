@@ -53,7 +53,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col md:flex-row bg-[#F7F8FC] apple-auth-bg text-[#0F172A] relative overflow-hidden select-none font-sans">
+    <div 
+      className="min-h-screen w-full flex flex-col md:flex-row bg-[#F7F8FC] apple-auth-bg text-[#0F172A] relative overflow-hidden select-none font-sans"
+      suppressHydrationWarning
+    >
       
       {/* Premium Layered Background (5 Slow Animated Blobs) */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">

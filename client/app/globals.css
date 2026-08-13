@@ -97,17 +97,12 @@ body {
   overflow-x: hidden;
   transition: background-color 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.3s ease;
   -webkit-font-smoothing: antialiased;
-  cursor: none !important;
   background-image: 
     radial-gradient(var(--card-border) 1px, transparent 0);
   background-size: 24px 24px;
 }
 
-a, button, input, select, textarea, [role="button"], label, tr, td {
-  cursor: none !important;
-}
-
-/* Hide native scrollbar but allow scrolling */
+/* Elegant responsive scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -388,6 +383,10 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.01);
   transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
+.glass-input.has-icon,
+.glass-input-icon {
+  padding-left: 2.75rem !important;
+}
 .dark .glass-input {
   background: rgba(21, 24, 29, 0.4);
 }
@@ -401,6 +400,17 @@ h1, h2, h3, h4, h5, h6 {
 .glass-input::placeholder {
   color: var(--text-tertiary);
   font-weight: 400;
+}
+
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"] {
+  color-scheme: light;
+}
+.dark input[type="date"],
+.dark input[type="datetime-local"],
+.dark input[type="time"] {
+  color-scheme: dark;
 }
 
 /* LUXURY ENTERPRISE TABLES */

@@ -11,9 +11,14 @@ import {
   User, 
   X, 
   Check, 
-  ChevronLeft,
-  ChevronRight,
-  AlertCircle
+  ChevronLeft, 
+  ChevronRight, 
+  AlertCircle,
+  Building2,
+  Tag,
+  FileText,
+  Sparkles,
+  Loader2
 } from "lucide-react";
 
 interface Booking {
@@ -32,10 +37,21 @@ interface Booking {
   };
 }
 
+interface AssetOption {
+  id: string;
+  name: string;
+  assetTag: string;
+  category?: {
+    name: string;
+  };
+}
+
 export default function BookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [availableAssets, setAvailableAssets] = useState<AssetOption[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Current user details
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -56,7 +72,7 @@ export default function BookingsPage() {
   const fetchBookings = async () => {
     try {
       setIsLoading(true);
-      const response = await api.get("/bookings?limit=100"); // Load enough for calendar/list
+      const response = await api.get("/bookings?limit=100");
       if (response.data.success) {
         setBookings(response.data.data.bookings);
       }
@@ -67,18 +83,43 @@ export default function BookingsPage() {
     }
   };
 
+  const fetchAssets = async () => {
+    try {
+      const response = await api.get("/assets?limit=20");
+      if (response.data.success) {
+        setAvailableAssets(response.data.data.assets || []);
+      }
+    } catch (err) {
+      console.error("Failed to load assets for booking selection", err);
+    }
+  };
+
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       setCurrentUser(JSON.parse(storedUser));
     }
     fetchBookings();
+    fetchAssets();
   }, []);
+
+  const generateRandomUuid = () => {
+    const uuid = typeof window !== 'undefined' && window.crypto?.randomUUID 
+      ? window.crypto.randomUUID() 
+      : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+          const r = Math.random() * 16 | 0;
+          const v = c === 'x' ? r : (r & 0x3 | 0x8);
+          return v.toString(16);
+        });
+    setResourceId(uuid);
+  };
 
   const handleCreateBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      setIsSubmitting(true);
       setModalError(null);
+      
       const response = await api.post("/bookings", {
         resourceId,
         resourceType,
@@ -86,13 +127,16 @@ export default function BookingsPage() {
         endTime,
         purpose
       });
+      
       if (response.data.success) {
         setIsAddModalOpen(false);
         resetFormStates();
         fetchBookings();
       }
     } catch (err: any) {
-      setModalError(err.response?.data?.message || "Failed to submit booking. Overlap conflict detected.");
+      setModalError(err.response?.data?.message || "Failed to submit booking. Overlap conflict or invalid date detected.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -154,7 +198,7 @@ export default function BookingsPage() {
   const todayBookings = bookings.filter(b => b.startTime.startsWith(today));
   const upcomingBookings = bookings.filter(b => new Date(b.startTime) > new Date() && b.status !== "CANCELLED" && b.status !== "REJECTED");
 
-  // Simple Month calendar logic
+  // Month calendar calculations
   const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
   const firstDayIndex = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
   const calendarDays = [];
@@ -182,7 +226,10 @@ export default function BookingsPage() {
             <p className="text-xs text-slate-450 dark:text-slate-450 mt-1">Reserve workspaces, meeting rooms, and corporate hardware.</p>
           </div>
           <button 
-            onClick={() => setIsAddModalOpen(true)}
+            onClick={() => {
+              if (!resourceId) generateRandomUuid();
+              setIsAddModalOpen(true);
+            }}
             className="apple-btn apple-btn-primary"
           >
             <Plus className="h-4 w-4" />
@@ -191,7 +238,7 @@ export default function BookingsPage() {
         </div>
 
         {/* View Toggle / Navigation bar */}
-        <div className="glass-panel p-4 bg-white/50 dark:bg-[#15181D]/45 flex justify-between items-center">
+        <div className="glass-panel p-4 bg-white/50 dark:bg-[#15181D]/45 flex justify-between items-center flex-wrap gap-3">
           <div className="flex gap-2 bg-slate-100/50 dark:bg-white/5 p-1 rounded-2xl">
             <button 
               onClick={() => setViewMode("LIST")}
@@ -247,7 +294,9 @@ export default function BookingsPage() {
               <div className="luxury-table-container">
                 <div className="px-6 py-4 border-b border-slate-200/20 dark:border-white/5 bg-slate-50/50 dark:bg-white/1 flex items-center justify-between">
                   <h3 className="font-extrabold text-xs uppercase tracking-widest text-slate-450">All Bookings</h3>
+                  <span className="text-xs font-bold text-slate-400">{bookings.length} reservations</span>
                 </div>
+                
                 {isLoading ? (
                   <div className="p-16 text-center text-slate-450">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#007AFF] mx-auto mb-4"></div>
@@ -262,7 +311,7 @@ export default function BookingsPage() {
                   <div className="p-20 text-center flex flex-col items-center justify-center">
                     <CalendarIcon className="h-12 w-12 text-slate-350 dark:text-zinc-700 mb-3" />
                     <p className="text-sm font-extrabold text-slate-500">No bookings recorded</p>
-                    <p className="text-xs text-slate-400 mt-1 max-w-[280px]">Be the first to request a room reservation.</p>
+                    <p className="text-xs text-slate-400 mt-1 max-w-[280px]">Be the first to request a room or resource reservation.</p>
                   </div>
                 ) : (
                   <div className="divide-y divide-slate-250/20 dark:divide-white/5">
@@ -273,22 +322,22 @@ export default function BookingsPage() {
                       const isApprover = ["ADMIN", "ASSET_MANAGER", "DEPARTMENT_HEAD"].includes(currentUser?.role || "");
 
                       return (
-                        <div key={booking.id} className="p-6 hover:bg-slate-50/50 dark:hover:bg-white/1 transition-all duration-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2.5">
+                        <div key={booking.id} className="p-6 hover:bg-slate-50/50 dark:hover:bg-white/1 transition-all duration-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                          <div className="space-y-2 flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2.5">
                               <span className={`status-pill ${getStatusPillClass(booking.status)}`}>
                                 {booking.status}
                               </span>
                               <span className="text-sm font-extrabold text-foreground">{booking.resourceType}</span>
                             </div>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">{booking.purpose}</p>
+                            <p className="text-xs text-slate-600 dark:text-slate-300 font-medium break-words leading-relaxed">{booking.purpose}</p>
                             <div className="flex flex-wrap gap-4 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                              <span className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" /> {startStr} - {endStr}</span>
-                              <span className="flex items-center gap-1.5"><User className="h-3.5 w-3.5" /> By: {booking.user?.name || "Unknown"}</span>
+                              <span className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5 text-slate-400" /> {startStr} - {endStr}</span>
+                              <span className="flex items-center gap-1.5"><User className="h-3.5 w-3.5 text-slate-400" /> By: {booking.user?.name || "Unknown"}</span>
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                          <div className="flex items-center gap-2 shrink-0 self-start md:self-center">
                             {booking.status === "PENDING" && isApprover && (
                               <>
                                 <button 
@@ -335,7 +384,7 @@ export default function BookingsPage() {
 
                 <div className="grid grid-cols-7 gap-1.5 bg-slate-200/40 dark:bg-black/20 p-1.5 rounded-2xl border border-slate-200/10">
                   {calendarDays.map((day, idx) => {
-                    if (!day) return <div key={`empty-${idx}`} className="bg-white/40 dark:bg-[#15181D]/20 min-h-[90px] p-2 rounded-xl" />;
+                    if (!day) return <div key={`empty-${idx}`} className="bg-white/40 dark:bg-[#15181D]/20 min-h-[105px] p-2 rounded-xl" />;
                     
                     const dayBookings = getBookingsForDay(day);
                     const isToday = day.toISOString().split("T")[0] === today;
@@ -343,28 +392,33 @@ export default function BookingsPage() {
                     return (
                       <div 
                         key={day.toISOString()} 
-                        className={`bg-white dark:bg-[#15181D] min-h-[95px] p-2 rounded-xl border border-slate-250/15 dark:border-white/5 flex flex-col justify-between hover:bg-slate-50 dark:hover:bg-white/1 transition-all duration-200 ${
+                        className={`bg-white dark:bg-[#15181D] min-h-[105px] h-full p-2 rounded-xl border border-slate-250/15 dark:border-white/5 flex flex-col justify-between hover:bg-slate-50 dark:hover:bg-white/1 transition-all duration-200 overflow-hidden ${
                           isToday ? "ring-2 ring-[#007AFF] ring-inset" : ""
                         }`}
                       >
-                        <span className={`text-[10px] font-extrabold ${isToday ? "text-[#007AFF]" : "text-slate-450"}`}>{day.getDate()}</span>
+                        <div className="flex justify-between items-center mb-1">
+                          <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-md ${isToday ? "bg-[#007AFF] text-white" : "text-slate-500"}`}>{day.getDate()}</span>
+                          {dayBookings.length > 0 && (
+                            <span className="text-[8px] font-bold text-slate-400">{dayBookings.length} {dayBookings.length === 1 ? 'evt' : 'evts'}</span>
+                          )}
+                        </div>
                         
-                        <div className="space-y-1 mt-2 flex-1 flex flex-col justify-end">
+                        <div className="space-y-1 flex-1 flex flex-col justify-end overflow-hidden">
                           {dayBookings.slice(0, 2).map((b) => (
                             <div 
                               key={b.id} 
-                              className={`text-[8px] font-bold p-1 rounded-lg border overflow-hidden truncate ${
+                              className={`text-[9px] font-semibold p-1 rounded-md border truncate leading-tight ${
                                 b.status === "APPROVED" 
-                                  ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/10" 
-                                  : "bg-amber-500/10 text-amber-500 border-amber-500/10"
+                                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/15" 
+                                  : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/15"
                               }`}
                               title={`${b.resourceType}: ${b.purpose}`}
                             >
-                              {b.resourceType.split(" ")[0]}: {b.purpose}
+                              {b.resourceType}: {b.purpose}
                             </div>
                           ))}
                           {dayBookings.length > 2 && (
-                            <div className="text-[8px] font-extrabold text-slate-450 text-center mt-0.5">
+                            <div className="text-[8px] font-extrabold text-slate-400 text-center">
                               +{dayBookings.length - 2} more
                             </div>
                           )}
@@ -436,8 +490,8 @@ export default function BookingsPage() {
 
         {/* NEW BOOKING REQUEST MODAL */}
         {isAddModalOpen && (
-          <div className="fixed inset-0 z-55 flex items-center justify-center bg-black/40 backdrop-blur-md animate-page-enter">
-            <div className="bg-white dark:bg-[#15181D] border border-slate-200/50 dark:border-white/5 rounded-3xl shadow-2xl w-full max-w-md p-6 relative">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md overflow-y-auto animate-page-enter">
+            <div className="bg-white dark:bg-[#15181D] border border-slate-200/50 dark:border-white/5 rounded-3xl shadow-2xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto relative">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <div className="flex items-center gap-1.5 mb-3">
@@ -456,72 +510,165 @@ export default function BookingsPage() {
               </div>
 
               {modalError && (
-                <div className="p-3 mb-4 text-xs text-red-650 bg-red-500/10 border border-red-500/15 rounded-2xl font-bold flex items-center gap-2">
-                  <AlertCircle className="h-4.5 w-4.5 text-red-500 shrink-0" />
+                <div className="p-3 mb-4 text-xs text-red-650 bg-red-500/10 border border-red-500/15 rounded-2xl font-bold flex items-start gap-2">
+                  <AlertCircle className="h-4.5 w-4.5 text-red-500 shrink-0 mt-0.5" />
                   <span>{modalError}</span>
                 </div>
               )}
 
               <form onSubmit={handleCreateBooking} className="space-y-5">
+                
+                {/* Resource Type */}
                 <div className="space-y-1.5">
-                  <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Resource Type</label>
-                  <select 
-                    value={resourceType}
-                    onChange={(e) => setResourceType(e.target.value)}
-                    className="glass-input bg-white/95 dark:bg-[#15181D]/95"
+                  <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider pl-0.5">
+                    Resource Type
+                  </label>
+                  <div className="relative flex items-center">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none z-10 text-slate-400 dark:text-slate-500">
+                      <Building2 className="h-4.5 w-4.5" />
+                    </span>
+                    <select 
+                      value={resourceType}
+                      onChange={(e) => setResourceType(e.target.value)}
+                      className="glass-input glass-input-icon !pl-11 pr-4 bg-white/95 dark:bg-[#15181D]/95"
+                    >
+                      <option value="Meeting Room">Meeting Room</option>
+                      <option value="Conference Hall">Conference Hall</option>
+                      <option value="Projector">Projector</option>
+                      <option value="Vehicle">Vehicle</option>
+                      <option value="Shared Device">Shared Device</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Resource ID UUID */}
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center">
+                    <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider pl-0.5">
+                      Resource ID (UUID)
+                    </label>
+                    <button 
+                      type="button" 
+                      onClick={generateRandomUuid} 
+                      className="text-[10px] text-[#007AFF] hover:underline font-bold"
+                    >
+                      Auto-Generate UUID
+                    </button>
+                  </div>
+                  <div className="relative flex items-center">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none z-10 text-slate-400 dark:text-slate-500">
+                      <Tag className="h-4.5 w-4.5" />
+                    </span>
+                    <input 
+                      type="text" 
+                      required 
+                      placeholder="e.g. b8449c2a-b620-410a-85d7-1306de15c7ea"
+                      value={resourceId}
+                      onChange={(e) => setResourceId(e.target.value)}
+                      className="glass-input glass-input-icon !pl-11 pr-4 font-mono text-xs"
+                    />
+                  </div>
+                  {availableAssets.length > 0 && (
+                    <div className="flex items-center gap-1.5 mt-1 overflow-x-auto py-1">
+                      <span className="text-[9px] text-slate-400 font-bold shrink-0">Quick Select:</span>
+                      {availableAssets.slice(0, 3).map(asset => (
+                        <button
+                          key={asset.id}
+                          type="button"
+                          onClick={() => {
+                            setResourceId(asset.id);
+                            setResourceType(asset.category?.name || "Shared Device");
+                          }}
+                          className="text-[9px] px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-white/5 hover:bg-[#007AFF]/10 hover:text-[#007AFF] transition-colors truncate max-w-[140px]"
+                          title={`${asset.name} (${asset.assetTag})`}
+                        >
+                          {asset.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Date/Time pickers */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider pl-0.5">
+                      Start Date & Time
+                    </label>
+                    <div className="relative flex items-center">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none z-10 text-slate-400 dark:text-slate-500">
+                        <CalendarIcon className="h-4.5 w-4.5" />
+                      </span>
+                      <input 
+                        type="datetime-local" 
+                        required
+                        value={startTime}
+                        onChange={(e) => setStartTime(e.target.value)}
+                        className="glass-input glass-input-icon !pl-11 pr-3 w-full text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider pl-0.5">
+                      End Date & Time
+                    </label>
+                    <div className="relative flex items-center">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none z-10 text-slate-400 dark:text-slate-500">
+                        <Clock className="h-4.5 w-4.5" />
+                      </span>
+                      <input 
+                        type="datetime-local" 
+                        required
+                        value={endTime}
+                        onChange={(e) => setEndTime(e.target.value)}
+                        className="glass-input glass-input-icon !pl-11 pr-3 w-full text-xs"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Purpose */}
+                <div className="space-y-1.5">
+                  <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider pl-0.5">
+                    Booking Purpose
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-3.5 flex items-center pointer-events-none z-10 text-slate-400 dark:text-slate-500">
+                      <FileText className="h-4.5 w-4.5" />
+                    </span>
+                    <textarea 
+                      required
+                      value={purpose}
+                      onChange={(e) => setPurpose(e.target.value)}
+                      className="glass-input glass-input-icon !pl-11 pt-2.5 h-24 resize-none w-full text-xs"
+                      placeholder="Specify booking description, meeting agenda, or resource purpose..."
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-slate-100 dark:border-white/5 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsAddModalOpen(false)}
+                    className="apple-btn apple-btn-secondary px-4 py-2.5"
                   >
-                    <option value="Meeting Room">Meeting Room</option>
-                    <option value="Conference Hall">Conference Hall</option>
-                    <option value="Projector">Projector</option>
-                    <option value="Vehicle">Vehicle</option>
-                    <option value="Shared Device">Shared Device</option>
-                  </select>
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit" 
+                    disabled={isSubmitting}
+                    className="apple-btn apple-btn-primary px-6 py-2.5"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" /> Submitting...
+                      </>
+                    ) : (
+                      "Request Reservation"
+                    )}
+                  </button>
                 </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Resource ID (UUID)</label>
-                  <input 
-                    type="text" required placeholder="e.g. 123e4567-e89b-12d3-a456-426614174000"
-                    value={resourceId}
-                    onChange={(e) => setResourceId(e.target.value)}
-                    className="glass-input"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Start Date & Time</label>
-                  <input 
-                    type="datetime-local" required
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                    className="glass-input"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">End Date & Time</label>
-                  <input 
-                    type="datetime-local" required
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                    className="glass-input"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">Booking Purpose</label>
-                  <textarea 
-                    required
-                    value={purpose}
-                    onChange={(e) => setPurpose(e.target.value)}
-                    className="glass-input h-20 resize-none"
-                    placeholder="Specify booking description/purpose..."
-                  />
-                </div>
-
-                <button type="submit" className="w-full apple-btn apple-btn-primary py-3">
-                  Request Reservation
-                </button>
               </form>
             </div>
           </div>

@@ -172,7 +172,7 @@ export default function ProfilePage() {
           {/* Left panel - User Avatar & Role */}
           <div className="premium-card p-6 flex flex-col items-center text-center">
             <div className="h-20 w-20 rounded-full bg-gradient-to-br from-[#007AFF] to-[#8B5CF6] text-white flex items-center justify-center font-extrabold text-2xl mb-4 shadow-lg shadow-blue-500/20">
-              {profile?.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)}
+              {(profile?.name || "User").split(" ").filter(Boolean).map(n => n[0]).join("").toUpperCase().slice(0, 2) || "U"}
             </div>
             <h3 className="font-extrabold text-lg tracking-tight text-foreground">{profile?.name}</h3>
             <p className="text-[10px] text-slate-450 dark:text-slate-500 font-extrabold uppercase tracking-widest mt-1.5">{profile?.designation || "Title unassigned"}</p>
@@ -201,51 +201,57 @@ export default function ProfilePage() {
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-extrabold text-slate-450 dark:text-slate-500 uppercase tracking-wider pl-1">
+                <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider pl-0.5">
                   Full Name
                 </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-2.5 h-4.5 w-4.5 text-slate-400" />
+                <div className="relative flex items-center">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none z-10 text-slate-400 dark:text-slate-500">
+                    <User className="h-4.5 w-4.5" />
+                  </span>
                   <input
                     {...register("name")}
                     type="text"
-                    className="glass-input pl-10"
+                    className="glass-input glass-input-icon !pl-11 pr-4"
                     placeholder="John Doe"
                   />
                 </div>
-                {errors.name && <p className="text-red-500 text-xs mt-1 font-semibold">{errors.name.message}</p>}
+                {errors.name && <p className="text-red-500 text-xs mt-1 font-semibold pl-1">{errors.name.message}</p>}
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-extrabold text-[#64748B] dark:text-slate-500 uppercase tracking-wider pl-1">
+                <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider pl-0.5">
                   Phone Number
                 </label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-2.5 h-4.5 w-4.5 text-slate-400" />
+                <div className="relative flex items-center">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none z-10 text-slate-400 dark:text-slate-500">
+                    <Phone className="h-4.5 w-4.5" />
+                  </span>
                   <input
                     {...register("phone")}
                     type="text"
-                    className="glass-input pl-10"
+                    className="glass-input glass-input-icon !pl-11 pr-4"
                     placeholder="Enter phone number..."
                   />
                 </div>
-                {errors.phone && <p className="text-red-500 text-xs mt-1 font-semibold">{errors.phone.message}</p>}
+                {errors.phone && <p className="text-red-500 text-xs mt-1 font-semibold pl-1">{errors.phone.message}</p>}
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-extrabold text-slate-455 dark:text-slate-500 uppercase tracking-wider pl-1">
+                <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider pl-0.5">
                   Corporate Designation
                 </label>
-                <div className="relative">
-                  <Briefcase className="absolute left-3 top-2.5 h-4.5 w-4.5 text-slate-400" />
+                <div className="relative flex items-center">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none z-10 text-slate-400 dark:text-slate-500">
+                    <Briefcase className="h-4.5 w-4.5" />
+                  </span>
                   <input
                     {...register("designation")}
                     type="text"
-                    className="glass-input pl-10"
+                    className="glass-input glass-input-icon !pl-11 pr-4"
                     placeholder="e.g. Lead Engineer"
                   />
                 </div>
-                {errors.designation && <p className="text-red-500 text-xs mt-1 font-semibold">{errors.designation.message}</p>}
+                {errors.designation && <p className="text-red-500 text-xs mt-1 font-semibold pl-1">{errors.designation.message}</p>}
               </div>
 
               <div className="pt-4 border-t border-slate-100/50 dark:border-white/5 flex justify-end">

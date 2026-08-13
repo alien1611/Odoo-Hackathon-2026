@@ -97,10 +97,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
     const fetchNotifications = async () => {
       try {
-        const response = await api.get("/notifications");
-        if (response.data.success) {
-          const unread = response.data.data.notifications.filter((n: any) => !n.read).length;
-          setUnreadCount(unread);
+        const response = await api.get("/notifications/unread-count");
+        if (response.data.success && typeof response.data.data?.unreadCount === "number") {
+          setUnreadCount(response.data.data.unreadCount);
+        } else {
+          // Fallback to user notifications array
+          const userNotifs = await api.get("/notifications/user");
+          if (userNotifs.data.success && Array.isArray(userNotifs.data.data)) {
+            const unread = userNotifs.data.data.filter((n: any) => !n.read).length;
+            setUnreadCount(unread);
+          }
         }
       } catch (err) {
         console.error("Failed to fetch notifications:", err);
@@ -108,8 +114,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     };
 
     fetchNotifications();
+
+    const handleNotificationsUpdate = () => {
+      fetchNotifications();
+    };
+    window.addEventListener("notificationsUpdated", handleNotificationsUpdate);
+
     const interval = setInterval(fetchNotifications, 20000); // Poll every 20s
-    return () => clearInterval(interval);
+    return () => {
+      window.removeEventListener("notificationsUpdated", handleNotificationsUpdate);
+      clearInterval(interval);
+    };
   }, [isAuthenticated]);
 
   const handleLogout = () => {
@@ -120,7 +135,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   if (!isAuthenticated || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] dark:bg-[#0B0D10]">
+      <div 
+        className="min-h-screen flex items-center justify-center bg-[#F8FAFC] dark:bg-[#0B0D10]"
+        suppressHydrationWarning
+      >
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#007AFF]"></div>
       </div>
     );
@@ -146,7 +164,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen flex bg-background text-foreground transition-colors duration-450 relative font-sans overflow-hidden">
+    <div 
+      className="h-screen flex bg-background text-foreground transition-colors duration-450 relative font-sans overflow-hidden"
+      suppressHydrationWarning
+    >
       
       {/* Background ambient light blobs */}
       <div className="apple-glow apple-glow-blue" />
@@ -241,7 +262,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* MAIN CONTAINER */}
-      <div className="flex-1 flex flex-col min-w-0 z-10 relative">
+      <div className="flex-1 flex flex-col min-w-0 h-full min-h-0 z-10 relative">
         
         {/* TOP BAR */}
         <header className="m-6 mb-2 p-3 sm:px-6 glass-panel bg-white/40 dark:bg-[#15181D]/45 flex items-center justify-between z-30">

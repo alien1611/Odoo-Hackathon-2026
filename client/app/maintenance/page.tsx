@@ -417,8 +417,8 @@ export default function MaintenancePage() {
 
         {/* MODAL: RAISE MAINTENANCE REQUEST */}
         {isAddModalOpen && (
-          <div className="fixed inset-0 z-55 flex items-center justify-center bg-black/40 backdrop-blur-md animate-page-enter">
-            <div className="bg-white dark:bg-[#15181D] border border-slate-200/50 dark:border-white/5 rounded-3xl shadow-2xl w-full max-w-md p-6 relative">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md overflow-y-auto animate-page-enter">
+            <div className="bg-white dark:bg-[#15181D] border border-slate-200/50 dark:border-white/5 rounded-3xl shadow-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto relative">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <div className="flex items-center gap-1.5 mb-1.5">
@@ -499,8 +499,8 @@ export default function MaintenancePage() {
 
         {/* MODAL: ASSIGN TECHNICIAN */}
         {isAssignModalOpen && selectedRequest && (
-          <div className="fixed inset-0 z-55 flex items-center justify-center bg-black/40 backdrop-blur-md animate-page-enter">
-            <div className="bg-white dark:bg-[#15181D] border border-slate-200/50 dark:border-white/5 rounded-3xl shadow-2xl w-full max-w-md p-6 relative">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md overflow-y-auto animate-page-enter">
+            <div className="bg-white dark:bg-[#15181D] border border-slate-200/50 dark:border-white/5 rounded-3xl shadow-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto relative">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <div className="flex items-center gap-1.5 mb-1.5">

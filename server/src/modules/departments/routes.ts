@@ -8,8 +8,10 @@ const controller = new DepartmentController();
 
 router.use(authenticate); // All department routes require auth
 
+router.get("/stats", controller.getStats);
 router.get("/", controller.getAll);
 router.get("/:id", controller.getById);
+
 // Business Rule: ONLY ADMIN CAN MODIFY DEPARTMENTS
 router.post("/", requireRole(["ADMIN"]), controller.create);
 router.patch("/:id", requireRole(["ADMIN"]), controller.update);

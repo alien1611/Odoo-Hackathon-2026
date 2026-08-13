@@ -22,6 +22,19 @@ export class NotificationRepository {
     });
   }
 
+  async countUnread(userId: string) {
+    return prisma.notification.count({
+      where: { userId, read: false },
+    });
+  }
+
+  async markAllAsRead(userId: string) {
+    return prisma.notification.updateMany({
+      where: { userId, read: false },
+      data: { read: true },
+    });
+  }
+
   async delete(id: string, userId: string) {
     return prisma.notification.deleteMany({
       where: { id, userId },

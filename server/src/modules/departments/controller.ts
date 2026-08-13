@@ -13,6 +13,15 @@ export class DepartmentController {
     }
   };
 
+  getStats = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const data = await this.service.getStats();
+      res.status(200).json({ success: true, message: "Success", data });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   getById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const data = await this.service.getDepartmentById(req.params.id as string);
@@ -34,7 +43,8 @@ export class DepartmentController {
 
   update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const data = await this.service.updateDepartment(req.params.id as string, req.body);
+      const adminId = (req as any).user?.id;
+      const data = await this.service.updateDepartment(req.params.id as string, req.body, adminId);
       res.status(200).json({ success: true, message: "Updated", data });
     } catch (error) {
       next(error);
@@ -43,7 +53,8 @@ export class DepartmentController {
 
   delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      await this.service.deleteDepartment(req.params.id as string);
+      const adminId = (req as any).user?.id;
+      await this.service.deleteDepartment(req.params.id as string, adminId);
       res.status(200).json({ success: true, message: "Deleted", data: {} });
     } catch (error) {
       next(error);
