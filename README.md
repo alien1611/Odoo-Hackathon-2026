@@ -406,10 +406,10 @@ If demo users are available:
 
 ```
 Email:
-admin@example.com
+admin@company.com
 
 Password:
-admin123
+Password123!
 ```
 
 (Replace with actual demo credentials if applicable.)
