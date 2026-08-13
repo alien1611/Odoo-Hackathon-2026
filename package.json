@@ -4,10 +4,12 @@
   "description": "Enterprise ERP Asset Management System",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc",
+    "build": "prisma generate && tsc",
+    "postinstall": "prisma generate",
     "start": "node dist/server.js",
     "dev": "tsx watch server/src/server.ts",
-    "seed": "tsx server/scripts/seed.ts"
+    "seed": "tsx server/scripts/seed.ts",
+    "db:push": "prisma db push"
   },
   "dependencies": {
     "@prisma/client": "^5.0.0",
