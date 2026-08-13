@@ -1,4 +1,4 @@
-import express, { Application } from "express";
+import express, { Application, Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 
@@ -28,7 +28,7 @@ app.use(express.json()); // Parses incoming JSON payloads
 
 // Mount Routes (Module 1 APIs)
 // Add this above your "Mount Routes" section
-app.get('/api/health', (_req, res) => {
+app.get('/api/health', (_req: Request, res: Response) => {
   res.status(200).json({ success: true, message: 'ERP Backend is operational' });
 });
 

@@ -7,7 +7,8 @@ export class ApiError extends Error {
     this.statusCode = statusCode;
     this.success = false;
     
-    // Capture the stack trace for debugging
-    Error.captureStackTrace(this, this.constructor);
+    if (typeof (Error as any).captureStackTrace === 'function') {
+      (Error as any).captureStackTrace(this, this.constructor);
+    }
   }
 }
