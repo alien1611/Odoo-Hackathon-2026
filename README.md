@@ -331,9 +331,9 @@ Create a `.env` file inside the backend folder.
 Example:
 
 ```env
-DATABASE_URL="postgresql://postgres:password@localhost:5432/assetflow"
+DATABASE_URL="postgresql://<USER>:<PASSWORD>@<HOST>:<PORT>/<DATABASE>"
 
-JWT_SECRET=your_secret_key
+JWT_SECRET=<YOUR_JWT_SECRET>
 
 PORT=5000
 ```
